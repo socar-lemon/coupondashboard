@@ -118,10 +118,36 @@ h1 .hl{color:var(--red)}
 .wd-bar{width:80px;height:6px;background:var(--sf2);border-radius:3px;overflow:hidden;flex-shrink:0}
 .wd-bar-fill{height:100%;border-radius:3px}
 
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:32px;border-bottom:1px solid var(--bd);padding-bottom:0}
+.tab-btn{font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;padding:10px 20px;background:none;border:none;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab-btn:hover{color:var(--dim)}
+.tab-btn.active{color:var(--tx);border-bottom-color:var(--red)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Time group chart */
+.tg-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.tg-col{background:var(--sf);border:1px solid var(--bd);border-radius:9px;padding:14px 10px;text-align:center;transition:border-color .2s}
+.tg-col:hover{border-color:var(--dim)}
+.tg-col.worst{border-color:var(--red)}
+.tg-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;margin-bottom:8px}
+.tg-bars{display:flex;gap:2px;justify-content:center;align-items:flex-end;height:80px;margin-bottom:6px}
+.tg-bar{width:16px;border-radius:2px 2px 0 0}
+.tg-bar.a{background:var(--mut);opacity:.4}.tg-bar.b{background:var(--blu)}
+.tg-val{font-family:'JetBrains Mono',monospace;font-size:9px;margin:2px 0}
+.tg-gap{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600}
+.tg-disc{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);margin-top:4px}
+
+/* Highlight box */
+.hl-box{background:linear-gradient(135deg,#1a0a10,var(--sf));border:1px solid #3a1525;border-left:3px solid var(--red);border-radius:8px;padding:20px 24px;margin-bottom:24px}
+.hl-box h3{font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px}
+.hl-box p{font-size:11px;color:var(--dim);line-height:1.8}
+
 .footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--bd);font-size:10px;color:var(--mut)}
 
 @keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:1200px){.c{padding:20px}.kpi{grid-template-columns:repeat(3,1fr)}.ins{grid-template-columns:repeat(2,1fr)}.col2,.col3{grid-template-columns:1fr}h1{font-size:24px}}
+@media(max-width:1200px){.c{padding:20px}.kpi{grid-template-columns:repeat(3,1fr)}.ins{grid-template-columns:repeat(2,1fr)}.col2,.col3{grid-template-columns:1fr}.tg-grid{grid-template-columns:repeat(4,1fr)}h1{font-size:24px}}
 </style>
 </head>
 <body>
@@ -135,6 +161,15 @@ h1 .hl{color:var(--red)}
   <h1>W12 쿠폰 매출 <span class="hl">-287백만</span> 하락, 어디서 빠졌나?</h1>
   <p class="sub">매출(Revenue) 중심 분석 | profit_socar_reservation | coupon_policy_id IS NOT NULL</p>
 </header>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('overview')">매출 하락 분석</button>
+  <button class="tab-btn" onclick="switchTab('timegroup')">시간구간별 분석</button>
+</div>
+
+<!-- TAB 1: Overview -->
+<div class="tab-panel active" id="tab-overview">
 
 <!-- KPI 6 -->
 <div class="kpi">
@@ -318,6 +353,90 @@ h1 .hl{color:var(--red)}
   </div>
 </div>
 
+</div><!-- end tab-overview -->
+
+<!-- TAB 2: Time Group Analysis -->
+<div class="tab-panel" id="tab-timegroup">
+
+<!-- Highlight -->
+<div class="hl-box">
+  <h3>핵심 발견: 4~8시간 구간이 매출 Gap의 91%</h3>
+  <p>전체 매출 Gap -287백만 중 <span class="v r">4~8시간 구간이 -260백만(91%)</span>을 차지.
+  #15445→#16152 전환 자체는 정상이나, <strong>퇴출근쿠폰 9,900원</strong>(할인/렌트 -564%)이
+  4~8h에서 2,890건 · 8~24h에서 5,961건으로 대량 침투하면서 구간별 객단가와 수익을 동시에 훼손.</p>
+</div>
+
+<!-- Time Group Summary Chart -->
+<div class="s">
+  <div class="sh"><span class="sn">01</span><span class="st">시간구간별 매출 YoY 비교 (백만원)</span><span class="sl"></span></div>
+  <div class="tg-grid" id="tgChart"></div>
+</div>
+
+<!-- Time Group Table -->
+<div class="s">
+  <div class="sh"><span class="sn">02</span><span class="st">시간구간별 상세 지표</span><span class="sl"></span></div>
+  <div style="overflow-x:auto">
+    <table class="tb">
+      <thead><tr>
+        <th style="text-align:left">시간구간</th><th>2025 매출</th><th>2026 매출</th><th>Gap</th>
+        <th>2025 건수</th><th>2026 건수</th><th>건당매출 '25</th><th>건당매출 '26</th>
+        <th>할인/렌트 '25</th><th>할인/렌트 '26</th><th>할인심화</th>
+      </tr></thead>
+      <tbody id="tgTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Deep Dive: 4~8h -->
+<div class="s">
+  <div class="sh"><span class="sn">03</span><span class="st">4~8시간 구간 쿠폰별 상세 — Gap -260백만의 원인</span><span class="sl"></span></div>
+  <div class="hl-box" style="border-left-color:var(--yel)">
+    <h3 style="color:var(--yel)">4~8시간 구간 요약</h3>
+    <p>매출 <span class="v r">1,390→1,130백만 (-260, -18.7%)</span> | 건수 28,773→24,245 (-15.7%) | 건당매출 48,308→46,613원 (-3.5%)<br>
+    할인/렌트 <span class="v r">-99.5%→-116.6%</span> (렌트 대비 할인이 더 많음) | Profit 30→-9백만 (적자전환)</p>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="tb" id="t48">
+      <thead><tr><th>Div</th><th>쿠폰명</th><th>건수</th><th>매출</th><th>할인/렌트</th><th>Profit</th><th>역할</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Deep Dive: 8~24h -->
+<div class="s">
+  <div class="sh"><span class="sn">04</span><span class="st">8~24시간 구간 — 매출은 +49이나 할인이 가장 심함</span><span class="sl"></span></div>
+  <div class="hl-box" style="border-left-color:var(--yel)">
+    <h3 style="color:var(--yel)">8~24시간 구간 요약</h3>
+    <p>매출 <span class="v g">1,481→1,530백만 (+49, +3.3%)</span> | 건수 18,939→23,954 (+26.5%) | 건당매출 <span class="v r">78,218→63,888원 (-18.3%)</span><br>
+    할인/렌트 <span class="v r">-132.0%→-192.7%</span> (렌트의 1.9배를 할인) | Profit <span class="v r">292→103백만 (-65%)</span></p>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="tb" id="t824">
+      <thead><tr><th>Div</th><th>쿠폰명</th><th>건수</th><th>매출</th><th>할인/렌트</th><th>Profit</th><th>역할</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Deep Dive: 1박2일 -->
+<div class="s">
+  <div class="sh"><span class="sn">05</span><span class="st">1박2일 구간 — Gap -128백만, 건수 감소가 주 원인</span><span class="sl"></span></div>
+  <div class="hl-box" style="border-left-color:var(--blu)">
+    <h3 style="color:var(--blu)">1박2일 구간 요약</h3>
+    <p>매출 <span class="v r">1,165→1,037백만 (-128, -11.0%)</span> | 건수 <span class="v r">9,480→7,887 (-16.8%)</span> | 건당매출 <span class="v g">122,873→131,482원 (+7.0%)</span><br>
+    할인/렌트 <span class="v r">-124.7%→-163.3%</span> | #16154 1박2일50%가 주력 (GPM 31.9%)</p>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="tb" id="t1d">
+      <thead><tr><th>Div</th><th>쿠폰명</th><th>건수</th><th>매출</th><th>할인/렌트</th><th>Profit</th><th>역할</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- end tab-timegroup -->
+
 <div class="footer">Generated 2026-03-26 | socar_biz_profit.profit_socar_reservation | coupon_policy_id IS NOT NULL, ISOWEEK=12</div>
 </div>
 
@@ -494,6 +613,140 @@ function fillTb(id,data){
 }
 fillTb('lossT',loss);
 fillTb('gainT',gain);
+
+// ======= TAB SWITCHING =======
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ======= TIME GROUP CHART =======
+const tgData=[
+  {l:'4h미만',r25:247,r26:243,c25:10651,c26:8791,rpr25:23223,rpr26:27594,dr25:-88.5,dr26:-54.8},
+  {l:'4~8h',r25:1390,r26:1130,c25:28773,c26:24245,rpr25:48308,rpr26:46613,dr25:-99.5,dr26:-116.6},
+  {l:'8~24h',r25:1481,r26:1530,c25:18939,c26:23954,rpr25:78218,rpr26:63888,dr25:-132.0,dr26:-192.7},
+  {l:'1박2일',r25:1165,r26:1037,c25:9480,c26:7887,rpr25:122873,rpr26:131482,dr25:-124.7,dr26:-163.3},
+  {l:'2박3일',r25:376,r26:444,c25:1988,c26:2319,rpr25:188965,rpr26:191275,dr25:-115.4,dr26:-149.4},
+  {l:'3박4일',r25:111,r26:148,c25:496,c26:624,rpr25:223300,rpr26:237421,dr25:-123.2,dr26:-151.6},
+  {l:'4일+',r25:325,r26:277,c25:990,c26:672,rpr25:328712,rpr26:411557,dr25:-203.6,dr26:-173.1},
+];
+(function(){
+  const c=document.getElementById('tgChart'),mx=Math.max(...tgData.map(d=>Math.max(d.r25,d.r26)));
+  tgData.forEach(d=>{
+    const gap=d.r26-d.r25, neg=gap<0;
+    const worst=(d.l==='4~8h');
+    const el=document.createElement('div');
+    el.className='tg-col'+(worst?' worst':'');
+    el.innerHTML=`<div class="tg-label">${d.l}</div>
+      <div class="tg-bars">
+        <div class="tg-bar a" style="height:${d.r25/mx*70}px"></div>
+        <div class="tg-bar b" style="height:${d.r26/mx*70}px"></div>
+      </div>
+      <div class="tg-val" style="color:var(--dim)">${d.r25} → ${d.r26}</div>
+      <div class="tg-gap" style="color:var(--${neg?'red':'grn'})">${gap>0?'+':''}${gap}</div>
+      <div class="tg-disc">할인/렌트<br>${d.dr25}% → <span style="color:${d.dr26<d.dr25?'var(--red)':'var(--grn)'}">${d.dr26}%</span></div>`;
+    c.appendChild(el);
+  });
+})();
+
+// Time group table
+(function(){
+  const tb=document.getElementById('tgTable');
+  tgData.forEach(d=>{
+    const gap=d.r26-d.r25, neg=gap<0;
+    const drDiff=(d.dr26-d.dr25).toFixed(1);
+    const drWorse=d.dr26<d.dr25;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.l}</td>
+      <td class="mono">${d.r25.toLocaleString()}</td><td class="mono">${d.r26.toLocaleString()}</td>
+      <td class="mono" style="font-weight:600;color:var(--${neg?'red':'grn'})">${gap>0?'+':''}${gap}</td>
+      <td class="mono">${d.c25.toLocaleString()}</td><td class="mono">${d.c26.toLocaleString()}</td>
+      <td class="mono">${d.rpr25.toLocaleString()}</td><td class="mono">${d.rpr26.toLocaleString()}</td>
+      <td class="mono">${d.dr25}%</td><td class="mono" style="color:${drWorse?'var(--red)':'var(--grn)'}">${d.dr26}%</td>
+      <td class="mono" style="color:${drWorse?'var(--red)':'var(--grn)'}">${drDiff}%p</td>`;
+    tb.appendChild(tr);
+  });
+})();
+
+// 4~8h coupon detail
+const t48d=[
+  {d:'NORMAL',n:'#16152 4~8시간 40%',cnt:6923,rev:404,dr:'-64.4%',p:'+58',role:'주력 대체재 (흑자)'},
+  {d:'TARGET',n:'#16258 감사쿠폰 1일50%',cnt:4445,rev:204,dr:'-95.6%',p:'-2',role:'건수 많으나 수익 제로'},
+  {d:'PASSPORT',n:'#14140 패스포트 50%',cnt:2968,rev:146,dr:'-96.2%',p:'+5',role:'축소된 잔여'},
+  {d:'TARGET',n:'#16243 퇴출근 9,900원',cnt:2890,rev:61,dr:'-564.2%',p:'-46',role:'최대 적자'},
+  {d:'TARGET',n:'#16249 주중심야 12,900원',cnt:858,rev:22,dr:'-292.0%',p:'-11',role:'적자'},
+  {d:'TARGET',n:'#16222 대여요금 48%',cnt:595,rev:33,dr:'-89.2%',p:'+1',role:'소규모 흑자'},
+  {d:'B2B',n:'#11598 업무할인 주중60%',cnt:555,rev:27,dr:'-147.5%',p:'+3',role:'B2B 안정'},
+  {d:'PASSPORT',n:'#8579 패스포트 50%',cnt:488,rev:22,dr:'-97.8%',p:'0',role:'손익분기'},
+  {d:'NORMAL',n:'#16151 4시간미만 30%',cnt:276,rev:18,dr:'-28.5%',p:'+6',role:'구간 초과 이용'},
+  {d:'SD_CS',n:'당일 16,900원',cnt:361,rev:10,dr:'-304.2%',p:'-6',role:'적자'},
+];
+(function(){
+  const tb=document.querySelector('#t48 tbody');
+  t48d.forEach(d=>{
+    const tr=document.createElement('tr');
+    const neg=d.p.startsWith('-');
+    tr.innerHTML=`<td>${d.d}</td><td>${d.n}</td><td class="mono">${d.cnt.toLocaleString()}</td>
+      <td class="mono">${d.rev}</td><td class="mono r">${d.dr}</td>
+      <td class="mono" style="font-weight:600;color:var(--${neg?'red':'grn'})">${d.p}</td>
+      <td style="font-size:9px;color:${neg?'var(--red)':'var(--dim)'}">${d.role}</td>`;
+    tb.appendChild(tr);
+  });
+})();
+
+// 8~24h coupon detail
+const t824d=[
+  {d:'TARGET',n:'#16243 퇴출근 9,900원',cnt:5961,rev:122,dr:'-967.1%',p:'-113',role:'최대 적자 (렌트의 9.7배 할인)'},
+  {d:'NORMAL',n:'#16153 8~24시간 45%',cnt:4319,rev:410,dr:'-79.1%',p:'+108',role:'구간 주력 (흑자)'},
+  {d:'TARGET',n:'#16258 감사쿠폰 1일50%',cnt:2334,rev:201,dr:'-92.5%',p:'+44',role:'흑자'},
+  {d:'PASSPORT',n:'#14140 패스포트 50%',cnt:1622,rev:142,dr:'-94.1%',p:'+31',role:'축소된 잔여'},
+  {d:'TARGET',n:'특가존 60%',cnt:1510,rev:119,dr:'-144.7%',p:'+21',role:'흑자'},
+  {d:'PASSPORT',n:'#14141 패스포트 심야 9,000원',cnt:1074,rev:26,dr:'-990.1%',p:'-17',role:'적자'},
+  {d:'PASSPORT',n:'#15928 패스포트 심야 18,900원',cnt:603,rev:19,dr:'-484.0%',p:'-6',role:'적자'},
+  {d:'B2B',n:'#11598 업무할인 주중60%',cnt:574,rev:47,dr:'-147.0%',p:'+11',role:'안정'},
+  {d:'TARGET',n:'땡처리 29,900원',cnt:481,rev:28,dr:'-406.2%',p:'-6',role:'적자'},
+  {d:'TARGET',n:'#16203 특별전 19,900원',cnt:169,rev:10,dr:'-741.9%',p:'-5',role:'적자'},
+];
+(function(){
+  const tb=document.querySelector('#t824 tbody');
+  t824d.forEach(d=>{
+    const tr=document.createElement('tr');
+    const neg=d.p.startsWith('-');
+    tr.innerHTML=`<td>${d.d}</td><td>${d.n}</td><td class="mono">${d.cnt.toLocaleString()}</td>
+      <td class="mono">${d.rev}</td><td class="mono r">${d.dr}</td>
+      <td class="mono" style="font-weight:600;color:var(--${neg?'red':'grn'})">${d.p}</td>
+      <td style="font-size:9px;color:${neg?'var(--red)':'var(--dim)'}">${d.role}</td>`;
+    tb.appendChild(tr);
+  });
+})();
+
+// 1박2일 coupon detail
+const t1dd=[
+  {d:'NORMAL',n:'#16154 1박2일 50%',cnt:2572,rev:363,dr:'-97.4%',p:'+114',role:'주력 (GPM 31.9%)'},
+  {d:'TARGET',n:'#16259 감사쿠폰 2일55%',cnt:688,rev:102,dr:'-119.2%',p:'+30',role:'흑자'},
+  {d:'TARGET',n:'특가존 60%',cnt:578,rev:78,dr:'-140.3%',p:'+24',role:'흑자'},
+  {d:'TARGET',n:'#16224 대여요금 58%',cnt:388,rev:53,dr:'-135.0%',p:'+15',role:'흑자'},
+  {d:'TARGET',n:'#16239 땡처리 29,900원',cnt:303,rev:19,dr:'-536.6%',p:'-7',role:'적자'},
+  {d:'NORMAL',n:'2주 미리예약 55%',cnt:295,rev:46,dr:'-123.4%',p:'+16',role:'흑자'},
+  {d:'MAM',n:'첫사용 2일 49,900원',cnt:230,rev:25,dr:'-484.3%',p:'-2',role:'적자'},
+  {d:'TARGET',n:'땡처리 119,000원 (카니발)',cnt:227,rev:46,dr:'-246.8%',p:'+12',role:'흑자'},
+  {d:'B2B',n:'업무할인 주중60%',cnt:220,rev:33,dr:'-147.8%',p:'+12',role:'안정'},
+  {d:'TARGET',n:'#16203 특별전 19,900원',cnt:189,rev:10,dr:'-1190.7%',p:'-11',role:'최악 적자'},
+];
+(function(){
+  const tb=document.querySelector('#t1d tbody');
+  t1dd.forEach(d=>{
+    const tr=document.createElement('tr');
+    const neg=d.p.startsWith('-');
+    tr.innerHTML=`<td>${d.d}</td><td>${d.n}</td><td class="mono">${d.cnt.toLocaleString()}</td>
+      <td class="mono">${d.rev}</td><td class="mono r">${d.dr}</td>
+      <td class="mono" style="font-weight:600;color:var(--${neg?'red':'grn'})">${d.p}</td>
+      <td style="font-size:9px;color:${neg?'var(--red)':'var(--dim)'}">${d.role}</td>`;
+    tb.appendChild(tr);
+  });
+})();
 </script>
 </body>
 </html>
