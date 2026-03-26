@@ -144,6 +144,40 @@ h1 .hl{color:var(--red)}
 .hl-box h3{font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px}
 .hl-box p{font-size:11px;color:var(--dim);line-height:1.8}
 
+/* Diagnosis cards */
+.dx-card{background:var(--sf);border:1px solid var(--bd);border-radius:9px;padding:22px;margin-bottom:16px;position:relative;overflow:hidden}
+.dx-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.dx-card.critical::before{background:var(--red)}
+.dx-card.warning::before{background:var(--yel)}
+.dx-card.ok::before{background:var(--grn)}
+.dx-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.dx-title{font-size:14px;font-weight:700}
+.dx-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px}
+.dx-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;padding:12px;background:var(--sf2);border-radius:6px}
+.dx-kpi-label{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.dx-kpi-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600}
+.dx-kpi-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);margin-top:1px}
+.dx-section{margin-bottom:14px}
+.dx-section-title{font-size:11px;font-weight:700;color:var(--dim);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.dx-section-title .dot{width:6px;height:6px;border-radius:50%}
+.dx-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.dx-compare-panel{padding:12px;border-radius:6px;border:1px solid var(--bd)}
+.dx-compare-panel h5{font-size:10px;color:var(--mut);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.dx-row{display:flex;align-items:center;padding:4px 0;gap:6px;font-size:10px}
+.dx-row-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dx-row-val{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;width:50px;text-align:right}
+.dx-row-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);width:55px;text-align:right}
+
+/* Action plan */
+.ap-row{display:flex;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--bd);gap:12px}
+.ap-row:last-child{border-bottom:none}
+.ap-pri{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;width:20px;flex-shrink:0;padding-top:2px}
+.ap-content{flex:1}
+.ap-action{font-size:12px;font-weight:700;margin-bottom:4px}
+.ap-detail{font-size:10px;color:var(--dim);line-height:1.6}
+.ap-effect{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;width:120px;text-align:right;flex-shrink:0}
+.ap-target{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);width:70px;text-align:right;flex-shrink:0}
+
 .footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--bd);font-size:10px;color:var(--mut)}
 
 @keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -166,6 +200,7 @@ h1 .hl{color:var(--red)}
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('overview')">매출 하락 분석</button>
   <button class="tab-btn" onclick="switchTab('timegroup')">시간구간별 분석</button>
+  <button class="tab-btn" onclick="switchTab('diagnosis')">진단 & 해결방안</button>
 </div>
 
 <!-- TAB 1: Overview -->
@@ -436,6 +471,198 @@ h1 .hl{color:var(--red)}
 </div>
 
 </div><!-- end tab-timegroup -->
+
+<!-- TAB 3: Diagnosis & Actions -->
+<div class="tab-panel" id="tab-diagnosis">
+
+<div class="hl-box">
+  <h3>진단 요약</h3>
+  <p>시간그룹별 YoY 비교 결과, <strong>8~24시간</strong>이 시간당 매출 <span class="v r">-22.3%</span>(최대 하락), <strong>4~8시간</strong>이 매출 Gap <span class="v r">-260M</span>(전체의 91%)로 두 구간이 핵심 문제.
+  공통 원인은 <strong>퇴출근쿠폰 9,900원</strong>의 저효율 시간 점유 + <strong>패스포트 축소</strong>에 따른 건수 감소. 구간별 원인과 해결방안을 아래에 정리.</p>
+</div>
+
+<!-- 8~24h Diagnosis -->
+<div class="dx-card critical">
+  <div class="dx-head">
+    <div class="dx-title">8~24시간 — 시간당 매출 <span class="r">-22.3%</span> (최악)</div>
+    <span class="dx-badge" style="background:var(--red-d);color:var(--red)">CRITICAL</span>
+  </div>
+  <div class="dx-kpis">
+    <div><div class="dx-kpi-label">시간당 매출</div><div class="dx-kpi-val r">5,132원</div><div class="dx-kpi-sub">6,607 → -22.3%</div></div>
+    <div><div class="dx-kpi-label">총 이용시간</div><div class="dx-kpi-val r">298K h</div><div class="dx-kpi-sub">224K → +33%</div></div>
+    <div><div class="dx-kpi-label">매출</div><div class="dx-kpi-val g">1,530M</div><div class="dx-kpi-sub">1,481 → +3.3%</div></div>
+    <div><div class="dx-kpi-label">Profit</div><div class="dx-kpi-val r">103M</div><div class="dx-kpi-sub">292 → -64.8%</div></div>
+  </div>
+  <div class="dx-section">
+    <div class="dx-section-title"><span class="dot" style="background:var(--red)"></span> 문제 진단</div>
+    <p style="font-size:11px;color:var(--dim);line-height:1.8;margin-bottom:10px">
+      매출은 +49M 증가했으나 <strong>이용시간이 +33% 급증</strong>한 것이 문제. 퇴출근쿠폰이 <span class="v r">78,298시간(구간의 26%)</span>을 시간당 <span class="v r">1,564원</span>에 점유.
+      2025년 #15445(8,739원/h) + 패스포트(7,324원/h)가 주력이었는데, 2026년에는 #16153(7,955원/h)이 잘 대체했지만 퇴출근이 대량 침투하면서 구간 평균을 끌어내림.
+    </p>
+    <div style="overflow-x:auto">
+      <table class="tb">
+        <thead><tr><th style="text-align:left">쿠폰</th><th>시간점유</th><th>비중</th><th>시간당매출</th><th>Profit</th><th>진단</th></tr></thead>
+        <tbody>
+          <tr><td>퇴출근 9,900원</td><td class="mono">78,298h</td><td class="mono r" style="font-weight:600">26%</td><td class="mono r">1,564</td><td class="mono r">-113M</td><td style="font-size:9px;color:var(--red)">구간 평균 훼손 주범</td></tr>
+          <tr><td>패스포트 심야 9,000원</td><td class="mono">12,765h</td><td class="mono">4%</td><td class="mono r">2,071</td><td class="mono r">-17M</td><td style="font-size:9px;color:var(--red)">저효율</td></tr>
+          <tr><td>패스포트 심야 18,900원</td><td class="mono">8,163h</td><td class="mono">3%</td><td class="mono r">2,300</td><td class="mono r">-6M</td><td style="font-size:9px;color:var(--red)">저효율</td></tr>
+          <tr><td>#16153 8~24h 45%</td><td class="mono">51,543h</td><td class="mono">17%</td><td class="mono g">7,955</td><td class="mono g">+108M</td><td style="font-size:9px;color:var(--grn)">건전한 대체재</td></tr>
+          <tr><td>#16258 감사쿠폰 50%</td><td class="mono">27,293h</td><td class="mono">9%</td><td class="mono">7,366</td><td class="mono g">+44M</td><td style="font-size:9px;color:var(--grn)">흑자</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="dx-section">
+    <div class="dx-section-title"><span class="dot" style="background:var(--grn)"></span> 해결방안</div>
+    <div style="font-size:11px;color:var(--dim);line-height:1.8">
+      <strong style="color:var(--tx)">1. 퇴출근쿠폰 이용시간 상한 설정</strong> — 현재 평균 13.1h → 최대 8h로 제한 시 ~40Kh 회수 가능. 시간당 매출 +1,000원 개선 예상.<br>
+      <strong style="color:var(--tx)">2. 주말/피크 시간대 퇴출근 사용 제한</strong> — 차량 기회비용이 높은 시간대 보호. 유휴 차량에만 적용.<br>
+      <strong style="color:var(--tx)">3. 패스포트 심야 쿠폰 단가 상향</strong> — 9,000원/18,900원 → 시간당 최소 3,000원 기준으로 재설계.
+    </div>
+  </div>
+</div>
+
+<!-- 4~8h Diagnosis -->
+<div class="dx-card critical">
+  <div class="dx-head">
+    <div class="dx-title">4~8시간 — 매출 Gap <span class="r">-260M</span> (전체의 91%)</div>
+    <span class="dx-badge" style="background:var(--red-d);color:var(--red)">CRITICAL</span>
+  </div>
+  <div class="dx-kpis">
+    <div><div class="dx-kpi-label">시간당 매출</div><div class="dx-kpi-val r">8,329원</div><div class="dx-kpi-sub">8,969 → -7.1%</div></div>
+    <div><div class="dx-kpi-label">건수</div><div class="dx-kpi-val r">24,245</div><div class="dx-kpi-sub">28,773 → -15.7%</div></div>
+    <div><div class="dx-kpi-label">매출 Gap</div><div class="dx-kpi-val r">-260M</div><div class="dx-kpi-sub">1,390→1,130</div></div>
+    <div><div class="dx-kpi-label">Profit</div><div class="dx-kpi-val r">-9M</div><div class="dx-kpi-sub">30 → 적자전환</div></div>
+  </div>
+  <div class="dx-section">
+    <div class="dx-section-title"><span class="dot" style="background:var(--red)"></span> 문제 진단</div>
+    <p style="font-size:11px;color:var(--dim);line-height:1.8;margin-bottom:10px">
+      쿠폰 전환은 성공 (#15445 10,152원/h → #16152 10,400원/h). 문제는 <strong>패스포트 축소</strong>로 8,686→2,968건(-66%, <span class="v r">-256M</span>) 발생 + 퇴출근쿠폰(2,890건)이 시간당 3,397원으로 하방 압박.
+    </p>
+  </div>
+  <div class="dx-compare">
+    <div class="dx-compare-panel">
+      <h5 style="color:var(--dim)">2025 주력 쿠폰</h5>
+      <div class="dx-row"><span class="dx-row-name">#15445 TARGET 50%</span><span class="dx-row-val">426M</span><span class="dx-row-sub">10,152/h</span></div>
+      <div class="dx-row"><span class="dx-row-name">#14140 패스포트 50%</span><span class="dx-row-val">402M</span><span class="dx-row-sub">8,640/h</span></div>
+      <div class="dx-row"><span class="dx-row-name">#8579 패스포트 50%</span><span class="dx-row-val">176M</span><span class="dx-row-sub">8,777/h</span></div>
+      <div class="dx-row"><span class="dx-row-name">#13206 MAM 첫예약</span><span class="dx-row-val">98M</span><span class="dx-row-sub">9,314/h</span></div>
+    </div>
+    <div class="dx-compare-panel">
+      <h5 style="color:var(--dim)">2026 주력 쿠폰</h5>
+      <div class="dx-row"><span class="dx-row-name">#16152 NORMAL 40%</span><span class="dx-row-val g">404M</span><span class="dx-row-sub g">10,400/h</span></div>
+      <div class="dx-row"><span class="dx-row-name">#16258 감사쿠폰 50%</span><span class="dx-row-val">204M</span><span class="dx-row-sub">8,494/h</span></div>
+      <div class="dx-row"><span class="dx-row-name">#14140 패스포트 (축소)</span><span class="dx-row-val r">146M</span><span class="dx-row-sub">9,078/h</span></div>
+      <div class="dx-row"><span class="dx-row-name" style="color:var(--red)">퇴출근 9,900원 (신규)</span><span class="dx-row-val r">61M</span><span class="dx-row-sub r">3,397/h</span></div>
+    </div>
+  </div>
+  <div class="dx-section">
+    <div class="dx-section-title"><span class="dot" style="background:var(--grn)"></span> 해결방안</div>
+    <div style="font-size:11px;color:var(--dim);line-height:1.8">
+      <strong style="color:var(--tx)">1. 건수 복구 최우선</strong> — 4,500건 부족. 4~8h 전용 프로모션 확대, #16152 앱 노출 강화.<br>
+      <strong style="color:var(--tx)">2. #16152 할인율 차등화</strong> — 차종별 40%→35%(준중형) / 40%(경형)으로 객단가 상향.<br>
+      <strong style="color:var(--tx)">3. 4~8h 구간에서 퇴출근쿠폰 제외</strong> — 2,890건/18,040시간이 시간당 3,397원으로 구간 평균(8,329) 훼손.
+    </div>
+  </div>
+</div>
+
+<!-- 1박2일 Diagnosis -->
+<div class="dx-card warning">
+  <div class="dx-head">
+    <div class="dx-title">1박2일 — 매출 Gap <span class="r">-128M</span>, 건수 감소가 핵심</div>
+    <span class="dx-badge" style="background:var(--yel);color:var(--bg)">WARNING</span>
+  </div>
+  <div class="dx-kpis">
+    <div><div class="dx-kpi-label">시간당 매출</div><div class="dx-kpi-val g">4,333원</div><div class="dx-kpi-sub">4,170 → +3.9%</div></div>
+    <div><div class="dx-kpi-label">건수</div><div class="dx-kpi-val r">7,887</div><div class="dx-kpi-sub">9,480 → -16.8%</div></div>
+    <div><div class="dx-kpi-label">건당 매출</div><div class="dx-kpi-val g">131,482</div><div class="dx-kpi-sub">122,873 → +7.0%</div></div>
+    <div><div class="dx-kpi-label">Profit</div><div class="dx-kpi-val g">234M</div><div class="dx-kpi-sub">264 → -11.3%</div></div>
+  </div>
+  <div class="dx-section">
+    <div class="dx-section-title"><span class="dot" style="background:var(--yel)"></span> 문제 진단</div>
+    <p style="font-size:11px;color:var(--dim);line-height:1.8;margin-bottom:10px">
+      시간당 매출과 건당 매출은 오히려 개선. <strong>순수 건수 -1,593건 부족</strong>이 문제. 패스포트(2,494→0건, -315M) + #15445(873→0건, -122M) 소멸을 #16154(+363M)가 대체했으나 건수를 완전히 채우지 못함.
+    </p>
+  </div>
+  <div class="dx-compare">
+    <div class="dx-compare-panel">
+      <h5>2025 주력 (소멸)</h5>
+      <div class="dx-row"><span class="dx-row-name">패스포트50% (14140+8579)</span><span class="dx-row-val r">315M</span><span class="dx-row-sub">2,494건</span></div>
+      <div class="dx-row"><span class="dx-row-name">#15445 TARGET 50%</span><span class="dx-row-val r">122M</span><span class="dx-row-sub">873건</span></div>
+      <div class="dx-row"><span class="dx-row-name">#15366 60% 할인</span><span class="dx-row-val r">171M</span><span class="dx-row-sub">1,444건</span></div>
+      <div class="dx-row"><span class="dx-row-name">MAM 첫예약</span><span class="dx-row-val r">102M</span><span class="dx-row-sub">717건</span></div>
+    </div>
+    <div class="dx-compare-panel">
+      <h5>2026 대체 (신규)</h5>
+      <div class="dx-row"><span class="dx-row-name">#16154 1박2일 50%</span><span class="dx-row-val g">363M</span><span class="dx-row-sub">2,572건</span></div>
+      <div class="dx-row"><span class="dx-row-name">#16259 감사쿠폰 2일55%</span><span class="dx-row-val g">102M</span><span class="dx-row-sub">688건</span></div>
+      <div class="dx-row"><span class="dx-row-name">#16242 특가존 60%</span><span class="dx-row-val g">78M</span><span class="dx-row-sub">578건</span></div>
+      <div class="dx-row"><span class="dx-row-name">#16224 58% 할인</span><span class="dx-row-val g">53M</span><span class="dx-row-sub">388건</span></div>
+    </div>
+  </div>
+  <div class="dx-section">
+    <div class="dx-section-title"><span class="dot" style="background:var(--grn)"></span> 해결방안</div>
+    <div style="font-size:11px;color:var(--dim);line-height:1.8">
+      <strong style="color:var(--tx)">1. 1박2일 주말 프로모션 강화</strong> — 건수 1,600건 추가 확보 필요. 주말 타겟 푸시 확대.<br>
+      <strong style="color:var(--tx)">2. 패스포트 이탈 고객 리타겟팅</strong> — 패스포트 해지자 대상 #16154 1박2일 50% 발급.<br>
+      <strong style="color:var(--tx)">3. 미리예약 할인 노출 확대</strong> — #16117(295건), #16118(95건) 소규모이나 시간당 5,125~5,339원으로 효율 양호. 스케일업 여지.
+    </div>
+  </div>
+</div>
+
+<!-- Action Plan -->
+<div class="s">
+  <div class="sh"><span class="sn">ACTION</span><span class="st">종합 액션 플랜</span><span class="sl"></span></div>
+  <div class="pn">
+    <div class="ap-row">
+      <span class="ap-pri r">1</span>
+      <div class="ap-content">
+        <div class="ap-action">퇴출근쿠폰 이용시간 상한(8h) 또는 구간 제한</div>
+        <div class="ap-detail">8~24h에서 78Kh 중 ~40Kh 회수 가능. 4~8h에서도 18Kh 회수. 시간당 매출 +1,000원 이상 개선 예상. 차량 가동률(기회비용) 최적화 효과.</div>
+      </div>
+      <span class="ap-effect g">시간당매출 +1,000원</span>
+      <span class="ap-target">8~24h, 4~8h</span>
+    </div>
+    <div class="ap-row">
+      <span class="ap-pri r">2</span>
+      <div class="ap-content">
+        <div class="ap-action">4~8시간 건수 확대 (패스포트 이탈 대체)</div>
+        <div class="ap-detail">#16152 앱 노출 강화 + 4~8h 전용 프로모션. 현재 24,245건 → 28,773건 수준 복구 목표. 4,500건 × 46,613원 = +210M 매출 회복.</div>
+      </div>
+      <span class="ap-effect g">+210M 매출</span>
+      <span class="ap-target">4~8h</span>
+    </div>
+    <div class="ap-row">
+      <span class="ap-pri" style="color:var(--yel)">3</span>
+      <div class="ap-content">
+        <div class="ap-action">1박2일 주말 프로모션 + 패스포트 이탈자 리타겟팅</div>
+        <div class="ap-detail">건수 1,600건 부족. 패스포트 해지 고객 대상 #16154 50% 쿠폰 발급. 1,600건 × 131,482원 = +210M 매출 회복.</div>
+      </div>
+      <span class="ap-effect g">+210M 매출</span>
+      <span class="ap-target">1박2일</span>
+    </div>
+    <div class="ap-row">
+      <span class="ap-pri" style="color:var(--yel)">4</span>
+      <div class="ap-content">
+        <div class="ap-action">패스포트 심야 쿠폰 단가 상향</div>
+        <div class="ap-detail">9,000원/18,900원 심야 쿠폰의 시간당 매출이 2,071~2,300원. 최소 시간당 3,000원 기준으로 재설계. 20,928h 해당.</div>
+      </div>
+      <span class="ap-effect">효율 개선</span>
+      <span class="ap-target">8~24h</span>
+    </div>
+    <div class="ap-row">
+      <span class="ap-pri" style="color:var(--blu)">5</span>
+      <div class="ap-content">
+        <div class="ap-action">#16152 차종별 할인율 차등화</div>
+        <div class="ap-detail">준중형 40%→35%, 경형 40% 유지. 객단가 +5~10% 상향 기대. 구간 내 최대 건수(6,923건) 쿠폰이므로 레버리지 큼.</div>
+      </div>
+      <span class="ap-effect">객단가 +5~10%</span>
+      <span class="ap-target">4~8h</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- end tab-diagnosis -->
 
 <div class="footer">Generated 2026-03-26 | socar_biz_profit.profit_socar_reservation | coupon_policy_id IS NOT NULL, ISOWEEK=12</div>
 </div>
