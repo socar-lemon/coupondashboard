@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W12 YoY 쿠폰 매출 하락 사유 분석</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f;--sf:#12121a;--sf2:#1a1a26;--bd:#2a2a3a;--tx:#e8e8f0;--dim:#8888a0;--mut:#555568;
+  --red:#ff3b5c;--red-d:#ff3b5c33;--grn:#00e68a;--grn-d:#00e68a33;--yel:#ffc23a;--blu:#4da6ff;--blu-d:#4da6ff33;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:'Noto Sans KR',sans-serif;line-height:1.6}
+.c{max-width:1480px;margin:0 auto;padding:36px 44px 72px}
+
+/* Header */
+header{margin-bottom:44px;position:relative}
+header::after{content:'';position:absolute;bottom:-22px;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--red),transparent 60%)}
+.meta{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.tag{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:3px;background:var(--red-d);color:var(--red)}
+.date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mut)}
+h1{font-weight:900;font-size:32px;line-height:1.3;letter-spacing:-.02em;margin-bottom:6px}
+h1 .hl{color:var(--red)}
+.sub{font-size:13px;color:var(--dim);font-weight:300}
+
+/* KPI */
+.kpi{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:40px}
+.k{background:var(--sf);border:1px solid var(--bd);border-radius:9px;padding:16px 18px;position:relative;overflow:hidden}
+.k::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.k.n::before{background:var(--red)}.k.p::before{background:var(--grn)}.k.w::before{background:var(--yel)}.k.i::before{background:var(--blu)}
+.kl{font-size:10px;color:var(--mut);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.kv{display:flex;align-items:baseline;gap:3px;margin-bottom:4px}
+.kn{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700}
+.ku{font-size:11px;color:var(--dim)}
+.kp{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mut)}
+.kc{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;padding:2px 5px;border-radius:3px;display:inline-block;margin-top:3px}
+.kc.d{color:var(--red);background:var(--red-d)}.kc.u{color:var(--grn);background:var(--grn-d)}
+
+/* Section */
+.s{margin-bottom:40px;animation:fu .5s ease both}
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--red);letter-spacing:.05em}
+.st{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.sl{flex:1;height:1px;background:var(--bd)}
+
+/* Insight cards */
+.ins{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:40px}
+.ic{background:var(--sf);border:1px solid var(--bd);border-radius:9px;padding:18px;position:relative;overflow:hidden;transition:border-color .2s}
+.ic:hover{border-color:var(--dim)}
+.ic::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--red)}
+.ic .n{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--red);letter-spacing:.08em;margin-bottom:8px}
+.ic h4{font-size:12px;font-weight:700;margin-bottom:8px;line-height:1.4}
+.ic p{font-size:10px;color:var(--dim);line-height:1.7}
+.v{font-family:'JetBrains Mono',monospace;font-weight:600}
+.r{color:var(--red)}.g{color:var(--grn)}
+
+/* Panel */
+.pn{background:var(--sf);border:1px solid var(--bd);border-radius:9px;padding:22px}
+
+/* Revenue structure row */
+.rr{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd)}
+.rr:last-child{border-bottom:none}
+.rl{width:100px;font-size:11px;color:var(--dim);flex-shrink:0}
+.rv{width:65px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;flex-shrink:0}
+.rb{flex:1;display:flex;gap:3px;flex-direction:column;padding:0 10px}
+.rbr{display:flex;align-items:center;gap:5px}
+.rbi{height:7px;border-radius:2px;transition:width 1s ease}
+.rbi.a{background:var(--mut);opacity:.4}.rbi.b{background:var(--blu)}
+.rc{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;width:55px;text-align:right;flex-shrink:0}
+
+/* Daily gap chart */
+.dg{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.dc{text-align:center}
+.dc-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mut);margin-bottom:6px}
+.dc-bars{display:flex;gap:2px;justify-content:center;align-items:flex-end;height:110px;margin-bottom:4px}
+.dc-bar{width:20px;border-radius:2px 2px 0 0;transition:height .8s ease;cursor:pointer;position:relative}
+.dc-bar.a{background:var(--mut);opacity:.4}.dc-bar.b{background:var(--blu)}
+.dc-gap{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:3px 0}
+
+/* Division waterfall (revenue) */
+.wf-row{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd)}
+.wf-row:last-child{border-bottom:none}
+.wf-lb{width:130px;font-size:11px;font-weight:500;flex-shrink:0}
+.wf-lb .sub{display:block;font-size:9px;color:var(--mut);font-weight:400}
+.wf-vs{width:170px;display:flex;gap:10px;flex-shrink:0}
+.wf-v{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);width:70px;text-align:right}
+.wf-ba{flex:1;position:relative;height:22px;display:flex;align-items:center}
+.wf-b{height:16px;border-radius:2px;position:absolute;transition:width .8s ease}
+.wf-b.neg{background:linear-gradient(90deg,var(--red),#cc2244);right:50%}
+.wf-b.pos{background:linear-gradient(90deg,#00b36b,var(--grn));left:50%}
+.wf-cl{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--bd)}
+.wf-d{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;width:65px;text-align:right;flex-shrink:0}
+
+/* Coupon tables */
+.tb{width:100%;border-collapse:collapse;background:var(--sf);border:1px solid var(--bd);border-radius:9px;overflow:hidden}
+.tb thead th{font-size:9px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;padding:10px;text-align:right;background:var(--sf2);border-bottom:1px solid var(--bd)}
+.tb thead th:first-child,.tb thead th:nth-child(2){text-align:left}
+.tb tbody td{font-size:10px;padding:8px 10px;border-bottom:1px solid var(--bd);text-align:right}
+.tb tbody tr:last-child td{border-bottom:none}
+.tb tbody tr:hover{background:var(--sf2)}
+.tb tbody td:first-child{text-align:left;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:9px;color:var(--dim)}
+.tb tbody td:nth-child(2){text-align:left;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* Two/three col */
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.col3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* Weekend detail */
+.wd{background:var(--sf);border:1px solid var(--bd);border-radius:9px;padding:18px}
+.wd h4{font-size:12px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.wd h4 .badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px}
+.wd-row{display:flex;align-items:center;padding:5px 0;gap:8px;font-size:10px}
+.wd-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wd-val{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;width:55px;text-align:right}
+.wd-bar{width:80px;height:6px;background:var(--sf2);border-radius:3px;overflow:hidden;flex-shrink:0}
+.wd-bar-fill{height:100%;border-radius:3px}
+
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--bd);font-size:10px;color:var(--mut)}
+
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1200px){.c{padding:20px}.kpi{grid-template-columns:repeat(3,1fr)}.ins{grid-template-columns:repeat(2,1fr)}.col2,.col3{grid-template-columns:1fr}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="c">
+
+<header>
+  <div class="meta">
+    <span class="tag">Revenue Drop Analysis</span>
+    <span class="date">2026 W12 (03.16~03.22) vs 2025 W12 (03.17~03.23) | 반납기준 | 단위: 백만원</span>
+  </div>
+  <h1>W12 쿠폰 매출 <span class="hl">-287백만</span> 하락, 어디서 빠졌나?</h1>
+  <p class="sub">매출(Revenue) 중심 분석 | profit_socar_reservation | coupon_policy_id IS NOT NULL</p>
+</header>
+
+<!-- KPI 6 -->
+<div class="kpi">
+  <div class="k n">
+    <div class="kl">Revenue</div>
+    <div class="kv"><span class="kn">4,808</span><span class="ku">백만</span></div>
+    <div class="kp">전년 5,095백만</div>
+    <span class="kc d">-5.6% (-287)</span>
+  </div>
+  <div class="k n">
+    <div class="kl">건당 매출</div>
+    <div class="kv"><span class="kn">70,203</span><span class="ku">원</span></div>
+    <div class="kp">전년 71,447원</div>
+    <span class="kc d">-1.7%</span>
+  </div>
+  <div class="k w">
+    <div class="kl">할인액</div>
+    <div class="kv"><span class="kn">4,845</span><span class="ku">백만</span></div>
+    <div class="kp">전년 2,819백만</div>
+    <span class="kc d">+71.9% (+2,026)</span>
+  </div>
+  <div class="k n">
+    <div class="kl">건당 할인</div>
+    <div class="kv"><span class="kn">70,743</span><span class="ku">원</span></div>
+    <div class="kp">전년 39,529원</div>
+    <span class="kc d">+79.0%</span>
+  </div>
+  <div class="k n">
+    <div class="kl">GPM (Profit/Rev)</div>
+    <div class="kv"><span class="kn">11.3</span><span class="ku">%</span></div>
+    <div class="kp">전년 14.1%</div>
+    <span class="kc d">-2.8%p</span>
+  </div>
+  <div class="k n">
+    <div class="kl">CM% (CM/Rev)</div>
+    <div class="kv"><span class="kn">59.3</span><span class="ku">%</span></div>
+    <div class="kp">전년 61.8%</div>
+    <span class="kc d">-2.5%p</span>
+  </div>
+</div>
+
+<!-- 5 Insights - Revenue focused -->
+<div class="s">
+  <div class="sh"><span class="sn">KEY</span><span class="st">5 Key Insights (매출 관점)</span><span class="sl"></span></div>
+  <div class="ins">
+    <div class="ic">
+      <div class="n">INSIGHT 01</div>
+      <h4>토/일 매출 Gap이<br>전체의 79%</h4>
+      <p>토요일 <span class="v r">-99백만</span>, 일요일 <span class="v r">-128백만</span>.<br>
+      주중(월~금)은 합산 <span class="v">-60백만</span>에 불과.
+      주말 매출 하락이 핵심 문제.<br>
+      토 건수 <span class="v r">11,425→9,541(-16.5%)</span>,<br>
+      일 건수 <span class="v r">12,866→11,023(-14.3%)</span>.</p>
+    </div>
+    <div class="ic">
+      <div class="n">INSIGHT 02</div>
+      <h4>TARGET 50%할인(#15445)<br>→ NORMAL 시간대별로 전환</h4>
+      <p>2025년 주말 최대 쿠폰<br>
+      토 <span class="v r">178백만</span> + 일 <span class="v r">183백만</span> = <span class="v r">361백만</span>이
+      NORMAL #16152~16156으로 전환.<br>
+      전환 후 객단가 하락으로 매출 Gap 발생.</p>
+    </div>
+    <div class="ic">
+      <div class="n">INSIGHT 03</div>
+      <h4>PASSPORT 축소로<br>주말 -560백만 매출 감소</h4>
+      <p>패스포트50% (#14140) 주말 매출<br>
+      토 <span class="v r">225→64 (-161)</span><br>
+      일 <span class="v r">274→65 (-209)</span><br>
+      #8579 토 <span class="v r">101→12 (-89)</span><br>
+      일 <span class="v r">110→10 (-100)</span><br>
+      합산 <span class="v r">-559백만</span>.</p>
+    </div>
+    <div class="ic">
+      <div class="n">INSIGHT 04</div>
+      <h4>NORMAL 시간대별 할인이<br>주말 +762백만 메움</h4>
+      <p>토 <span class="v g">+379백만</span>, 일 <span class="v g">+487백만</span>.<br>
+      8~24h 45%, 4~8h 40%, 1박2일 50%가 주력.<br>
+      하지만 사라진 매출(-920)을<br>
+      완전히 커버하지 못해 <span class="v r">-227백만 잔여 Gap</span>.</p>
+    </div>
+    <div class="ic">
+      <div class="n">INSIGHT 05</div>
+      <h4>할인 깊이 심화가<br>매출 구조를 훼손</h4>
+      <p>렌트매출 <span class="v g">+8.69억</span> 증가했으나<br>
+      할인액 <span class="v r">+20.26억</span>(2.3배) 폭증.<br>
+      플랫폼수수료 <span class="v r">12.59→3.81억(-70%)</span>.<br>
+      매출 내 수수료 비중 <span class="v r">24.7%→7.9%</span>로 급락.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Section 1: Daily Revenue Gap -->
+<div class="s">
+  <div class="sh"><span class="sn">01</span><span class="st">일별 매출 Gap — 토/일이 핵심</span><span class="sl"></span></div>
+  <div class="pn">
+    <div style="display:flex;gap:16px;margin-bottom:12px;font-size:10px;color:var(--dim)">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--mut);opacity:.5"></span> 2025</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--blu)"></span> 2026</span>
+    </div>
+    <div class="dg" id="dailyGap"></div>
+  </div>
+</div>
+
+<!-- Section 2: Revenue Waterfall by Division -->
+<div class="s">
+  <div class="sh"><span class="sn">02</span><span class="st">Division별 매출 변동 Waterfall (백만원)</span><span class="sl"></span></div>
+  <div class="pn" id="wfall"></div>
+</div>
+
+<!-- Section 3: Revenue Structure -->
+<div class="s">
+  <div class="sh"><span class="sn">03</span><span class="st">매출 구성 변화 (억원)</span><span class="sl"></span></div>
+  <div class="pn">
+    <div class="rr" style="border-bottom:none;padding-bottom:2px">
+      <span class="rl" style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em">항목</span>
+      <span class="rv" style="font-size:9px;color:var(--mut);font-weight:600">2025</span>
+      <span class="rv" style="font-size:9px;color:var(--mut);font-weight:600">2026</span>
+      <div class="rb"></div><span class="rc"></span>
+    </div>
+    <div class="rr"><span class="rl">렌트매출</span><span class="rv">22.94</span><span class="rv">31.63</span><div class="rb"><div class="rbr"><div class="rbi a" style="width:58%"></div></div><div class="rbr"><div class="rbi b" style="width:80%"></div></div></div><span class="rc" style="color:var(--grn)">+37.9%</span></div>
+    <div class="rr"><span class="rl">플랫폼수수료</span><span class="rv">12.59</span><span class="rv">3.81</span><div class="rb"><div class="rbr"><div class="rbi a" style="width:65%"></div></div><div class="rbr"><div class="rbi b" style="width:20%"></div></div></div><span class="rc" style="color:var(--red)">-69.7%</span></div>
+    <div class="rr"><span class="rl">유류비수익</span><span class="rv">14.34</span><span class="rv">12.15</span><div class="rb"><div class="rbr"><div class="rbi a" style="width:55%"></div></div><div class="rbr"><div class="rbi b" style="width:47%"></div></div></div><span class="rc" style="color:var(--red)">-15.3%</span></div>
+    <div class="rr"><span class="rl" style="color:var(--red)">할인액</span><span class="rv" style="color:var(--red)">-28.19</span><span class="rv" style="color:var(--red)">-48.45</span><div class="rb"><div class="rbr"><div class="rbi a" style="width:40%;background:var(--red);opacity:.35"></div></div><div class="rbr"><div class="rbi b" style="width:69%;background:var(--red)"></div></div></div><span class="rc" style="color:var(--red)">+71.9%</span></div>
+    <div class="rr" style="border-top:2px solid var(--bd);padding-top:10px;margin-top:2px"><span class="rl" style="font-weight:700;color:var(--tx)">Revenue</span><span class="rv" style="font-weight:700;color:var(--tx)">50.95</span><span class="rv" style="font-weight:700;color:var(--tx)">48.08</span><div class="rb"><div class="rbr"><div class="rbi a" style="width:72%"></div></div><div class="rbr"><div class="rbi b" style="width:68%"></div></div></div><span class="rc" style="color:var(--red);font-weight:700">-5.6%</span></div>
+  </div>
+</div>
+
+<!-- Section 4: Weekend Coupon Deep Dive -->
+<div class="s">
+  <div class="sh"><span class="sn">04</span><span class="st">토/일 쿠폰별 매출 Gap 상세 (백만원)</span><span class="sl"></span></div>
+  <div class="col2">
+    <!-- Saturday -->
+    <div>
+      <div class="wd">
+        <h4>토요일 <span class="badge" style="background:var(--red-d);color:var(--red)">-99백만</span> <span style="font-size:10px;color:var(--dim);font-weight:400">건수 11,425→9,541</span></h4>
+        <div style="font-size:10px;color:var(--red);font-weight:600;margin-bottom:8px">사라진 매출</div>
+        <div id="satLoss"></div>
+        <div style="font-size:10px;color:var(--grn);font-weight:600;margin:10px 0 8px">새로 생긴 매출</div>
+        <div id="satGain"></div>
+      </div>
+    </div>
+    <!-- Sunday -->
+    <div>
+      <div class="wd">
+        <h4>일요일 <span class="badge" style="background:var(--red-d);color:var(--red)">-128백만</span> <span style="font-size:10px;color:var(--dim);font-weight:400">건수 12,866→11,023</span></h4>
+        <div style="font-size:10px;color:var(--red);font-weight:600;margin-bottom:8px">사라진 매출</div>
+        <div id="sunLoss"></div>
+        <div style="font-size:10px;color:var(--grn);font-weight:600;margin:10px 0 8px">새로 생긴 매출</div>
+        <div id="sunGain"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 5: Division Detail with GPM/CM -->
+<div class="s">
+  <div class="sh"><span class="sn">05</span><span class="st">주요 Division 매출·수익성 (백만원)</span><span class="sl"></span></div>
+  <div style="overflow-x:auto">
+    <table class="tb">
+      <thead><tr>
+        <th style="text-align:left">Division</th><th>2025 매출</th><th>2026 매출</th><th>Gap</th><th>YoY%</th>
+        <th>2025 건수</th><th>2026 건수</th><th>2025 GPM</th><th>2026 GPM</th><th>2025 CM%</th><th>2026 CM%</th>
+      </tr></thead>
+      <tbody id="divTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Section 6: Top Loss/Gain Coupons (week total) -->
+<div class="s">
+  <div class="sh"><span class="sn">06</span><span class="st">W12 전체 — 매출 적자/흑자 쿠폰 Top (백만원)</span><span class="sl"></span></div>
+  <div class="col2">
+    <div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--red)">2026 W12 Profit 적자 Top 10</div>
+      <table class="tb" id="lossT"><thead><tr><th>Div</th><th>쿠폰명</th><th>건수</th><th>매출</th><th>Profit</th><th>GPM</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--grn)">2026 W12 Profit 흑자 Top 10</div>
+      <table class="tb" id="gainT"><thead><tr><th>Div</th><th>쿠폰명</th><th>건수</th><th>매출</th><th>Profit</th><th>GPM</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Generated 2026-03-26 | socar_biz_profit.profit_socar_reservation | coupon_policy_id IS NOT NULL, ISOWEEK=12</div>
+</div>
+
+<script>
+// ======= DAILY GAP =======
+const daily = [
+  {d:'Mon',r25:597,r26:598},{d:'Tue',r25:544,r26:563},{d:'Wed',r25:576,r26:551},
+  {d:'Thu',r25:625,r26:607},{d:'Fri',r25:724,r26:687},{d:'Sat',r25:907,r26:808},{d:'Sun',r25:1122,r26:994}
+];
+(function(){
+  const c=document.getElementById('dailyGap'),mx=Math.max(...daily.map(d=>Math.max(d.r25,d.r26)));
+  daily.forEach(d=>{
+    const g=d.r26-d.r25, neg=g<0, pct=((g/d.r25)*100).toFixed(1);
+    const el=document.createElement('div');el.className='dc';
+    el.innerHTML=`<div class="dc-label">${d.d}</div>
+      <div class="dc-bars">
+        <div class="dc-bar a" style="height:${d.r25/mx*95}px" title="'25: ${d.r25}"></div>
+        <div class="dc-bar b" style="height:${d.r26/mx*95}px" title="'26: ${d.r26}"></div>
+      </div>
+      <div class="dc-gap" style="color:var(--${neg?'red':'grn'})">${g>0?'+':''}${g}<br><span style="font-size:9px">${pct}%</span></div>`;
+    c.appendChild(el);
+  });
+})();
+
+// ======= WATERFALL (Revenue) =======
+const wfData = [
+  {l:'PASSPORT',s:'30,027→7,325건',y25:1891,y26:399,delta:-1492},
+  {l:'TARGET',s:'24,393→27,045건',y25:2167,y26:1549,delta:-618},
+  {l:'MAM',s:'7,275→1,786건',y25:461,y26:131,delta:-330},
+  {l:'VOUCHER',s:'1,103→73건',y25:52,y26:2,delta:-50},
+  {l:'MEMBERSHIP',s:'1,015→208건',y25:64,y26:13,delta:-51},
+  {l:'COUPONBOOK',s:'522→0건',y25:61,y26:0,delta:-61},
+  {l:'COMPANY',s:'161→449건',y25:11,y26:28,delta:17},
+  {l:'B2B',s:'2,857→3,066건',y25:191,y26:239,delta:48},
+  {l:'SUPER_DEAL',s:'신규 2,279건',y25:0,y26:95,delta:95},
+  {l:'NORMAL',s:'3,251→25,926건',y25:161,y26:2336,delta:2175},
+];
+(function(){
+  const c=document.getElementById('wfall'),mx=Math.max(...wfData.map(d=>Math.abs(d.delta)));
+  // header
+  const hd=document.createElement('div');hd.className='wf-row';hd.style.borderBottom='none';
+  hd.innerHTML=`<span class="wf-lb" style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em">Division</span>
+    <div class="wf-vs"><span class="wf-v" style="font-weight:600;color:var(--mut);font-size:9px">2025 매출</span><span class="wf-v" style="font-weight:600;color:var(--mut);font-size:9px">2026 매출</span></div>
+    <div class="wf-ba" style="height:auto"><span style="position:absolute;left:10%;font-size:8px;color:var(--mut);font-family:'JetBrains Mono'">← 매출감소</span><span style="position:absolute;right:10%;font-size:8px;color:var(--mut);font-family:'JetBrains Mono'">매출증가 →</span></div>
+    <span style="width:65px"></span>`;
+  c.appendChild(hd);
+
+  wfData.forEach(d=>{
+    const r=document.createElement('div');r.className='wf-row';
+    const bw=Math.abs(d.delta)/mx*44, pos=d.delta>0;
+    r.innerHTML=`<span class="wf-lb">${d.l}<span class="sub">${d.s}</span></span>
+      <div class="wf-vs"><span class="wf-v">${d.y25.toLocaleString()}</span><span class="wf-v">${d.y26.toLocaleString()}</span></div>
+      <div class="wf-ba"><div class="wf-cl"></div><div class="wf-b ${pos?'pos':'neg'}" style="width:${bw}%"></div></div>
+      <span class="wf-d" style="color:var(--${pos?'grn':'red'})">${d.delta>0?'+':''}${d.delta.toLocaleString()}</span>`;
+    c.appendChild(r);
+  });
+  // total
+  const tot=document.createElement('div');tot.className='wf-row';tot.style.cssText='border-top:2px solid var(--bd);padding-top:12px;margin-top:4px';
+  tot.innerHTML=`<span class="wf-lb" style="font-weight:700">합계</span>
+    <div class="wf-vs"><span class="wf-v" style="font-weight:700;color:var(--tx)">5,095</span><span class="wf-v" style="font-weight:700;color:var(--tx)">4,808</span></div>
+    <div class="wf-ba"></div><span class="wf-d" style="color:var(--red);font-weight:700">-287</span>`;
+  c.appendChild(tot);
+})();
+
+// ======= WEEKEND COUPON DETAIL =======
+function fillWd(id, data, maxV, color) {
+  const c=document.getElementById(id);
+  data.forEach(d=>{
+    const r=document.createElement('div');r.className='wd-row';
+    r.innerHTML=`<span class="wd-name">${d.name}</span>
+      <div class="wd-bar"><div class="wd-bar-fill" style="width:${Math.abs(d.val)/maxV*100}%;background:${color}"></div></div>
+      <span class="wd-val" style="color:${color}">${d.val>0?'+':''}${d.val}</span>`;
+    c.appendChild(r);
+  });
+}
+
+// Saturday losses (2025 coupons that shrank/disappeared)
+fillWd('satLoss',[
+  {name:'TARGET 50%할인 #15445 → NORMAL전환',val:-178},
+  {name:'패스포트50% #14140',val:-161},
+  {name:'패스포트50% #8579',val:-89},
+  {name:'MAM 첫예약50% #13206',val:-77},
+  {name:'패스포트 부름무료 #14144',val:-37},
+],178,'var(--red)');
+
+fillWd('satGain',[
+  {name:'NORMAL 8~24시간 45%',val:+99},
+  {name:'NORMAL 4~8시간 40%',val:+93},
+  {name:'TARGET 감사쿠폰 1일50%',val:+86},
+  {name:'NORMAL 1박2일 50%',val:+58},
+  {name:'특가존 60%',val:+46},
+  {name:'NORMAL 4시간미만 30%',val:+40},
+],99,'var(--grn)');
+
+// Sunday losses
+fillWd('sunLoss',[
+  {name:'패스포트50% #14140',val:-209},
+  {name:'TARGET 50%할인 #15445 → NORMAL전환',val:-183},
+  {name:'패스포트50% #8579',val:-100},
+  {name:'MAM 첫예약50% #13206',val:-87},
+],209,'var(--red)');
+
+fillWd('sunGain',[
+  {name:'NORMAL 1박2일 50%',val:+107},
+  {name:'TARGET 감사쿠폰 1일50%',val:+88},
+  {name:'NORMAL 4~8시간 40%',val:+84},
+  {name:'NORMAL 8~24시간 45%',val:+82},
+  {name:'NORMAL 2박3일 55%',val:+59},
+],107,'var(--grn)');
+
+// ======= DIVISION TABLE =======
+const divs=[
+  {n:'PASSPORT',r25:1891,r26:399,c25:30027,c26:7325,g25:10.8,g26:5.3,cm25:60.3,cm26:56.6},
+  {n:'TARGET',r25:2167,r26:1549,c25:24393,c26:27045,g25:22.2,g26:-1.3,cm25:65.5,cm26:53.1},
+  {n:'MAM',r25:461,r26:131,c25:7275,c26:1786,g25:6.2,g26:-5.9,cm25:58.0,cm26:48.4},
+  {n:'NORMAL',r25:161,r26:2336,c25:3251,c26:25926,g25:-18.2,g26:22.7,cm25:47.2,cm26:64.6},
+  {n:'B2B',r25:191,r26:239,c25:2857,c26:3066,g25:15.7,g26:21.3,cm25:62.3,cm26:62.2},
+  {n:'MEMBERSHIP',r25:64,r26:13,c25:1015,c26:208,g25:2.5,g26:10.6,cm25:50.8,cm26:55.1},
+  {n:'SUPER_DEAL',r25:0,r26:95,c25:0,c26:2279,g25:0,g26:-29.5,cm25:0,cm26:50.4},
+  {n:'VOUCHER',r25:52,r26:2,c25:1103,c26:73,g25:-16.1,g26:-32.7,cm25:51.2,cm26:41.8},
+];
+(function(){
+  const tb=document.querySelector('#divTable');
+  divs.forEach(d=>{
+    const gap=d.r26-d.r25, yoy=d.r25?((gap/d.r25)*100).toFixed(1):'NEW';
+    const neg=gap<0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.n}</td>
+      <td class="mono">${d.r25.toLocaleString()}</td><td class="mono">${d.r26.toLocaleString()}</td>
+      <td class="mono" style="font-weight:600;color:var(--${neg?'red':'grn'})">${gap>0?'+':''}${gap.toLocaleString()}</td>
+      <td class="mono" style="color:var(--${neg?'red':'grn'})">${yoy}%</td>
+      <td class="mono">${d.c25.toLocaleString()}</td><td class="mono">${d.c26.toLocaleString()}</td>
+      <td class="mono" style="color:${d.g25<0?'var(--red)':''}">${d.g25}%</td>
+      <td class="mono" style="color:${d.g26<0?'var(--red)':''}">${d.g26}%</td>
+      <td class="mono">${d.cm25||'-'}%</td><td class="mono">${d.cm26}%</td>`;
+    tb.appendChild(tr);
+  });
+})();
+
+// ======= COUPON PROFIT TABLES =======
+const loss=[
+  {d:'TARGET',n:'퇴출근쿠폰 9,900원',cnt:8855,rev:184,p:-158,g:-86.0},
+  {d:'NORMAL',n:'4시간미만 30% 할인',cnt:7139,rev:213,p:-32,g:-14.9},
+  {d:'TARGET',n:'주중심야 12,900원',cnt:1585,rev:38,p:-20,g:-51.6},
+  {d:'TARGET',n:'특별전 19,900원 (아반떼N 등)',cnt:410,rev:22,p:-18,g:-80.1},
+  {d:'PASSPORT',n:'패스포트 심야 9,000원',cnt:1074,rev:26,p:-17,g:-64.9},
+  {d:'TARGET',n:'땡처리 29,900원',cnt:1058,rev:59,p:-14,g:-23.9},
+  {d:'TARGET',n:'특별전 29,900원 (BMW 등)',cnt:141,rev:9,p:-9,g:-102.9},
+  {d:'SD_CS',n:'당일 16,900원',cnt:447,rev:13,p:-7,g:-51.3},
+  {d:'PASSPORT',n:'패스포트 심야 18,900원',cnt:604,rev:19,p:-6,g:-32.3},
+  {d:'SOFAM',n:'쏘팸 75% 할인',cnt:118,rev:1,p:-5,g:-406.7},
+];
+const gain=[
+  {d:'NORMAL',n:'1박2일 50% 할인',cnt:2610,rev:374,p:119,g:31.9},
+  {d:'NORMAL',n:'8~24시간 45% 할인',cnt:4372,rev:421,p:113,g:26.8},
+  {d:'NORMAL',n:'2박3일 55% 할인',cnt:1268,rev:250,p:83,g:33.2},
+  {d:'NORMAL',n:'4일이상 65% 할인',cnt:595,rev:242,p:83,g:34.2},
+  {d:'NORMAL',n:'4~8시간 40% 할인',cnt:7308,rev:443,p:71,g:16.1},
+  {d:'TARGET',n:'특가존 60% 할인',cnt:2168,rev:215,p:51,g:23.9},
+  {d:'TARGET',n:'감사쿠폰 1일 50%',cnt:6809,rev:411,p:43,g:10.6},
+  {d:'NORMAL',n:'3박4일 60% 할인',cnt:507,rev:124,p:39,g:31.7},
+  {d:'PASSPORT',n:'패스포트 50% 할인',cnt:4614,rev:292,p:38,g:13.1},
+  {d:'B2B',n:'업무할인 주중 60%',cnt:1636,rev:140,p:37,g:26.4},
+];
+function fillTb(id,data){
+  const tb=document.querySelector(`#${id} tbody`);
+  data.forEach(d=>{
+    const tr=document.createElement('tr');const neg=d.p<0;
+    tr.innerHTML=`<td>${d.d}</td><td>${d.n}</td><td class="mono">${d.cnt.toLocaleString()}</td>
+      <td class="mono">${d.rev}</td><td class="mono" style="font-weight:600;color:var(--${neg?'red':'grn'})">${d.p>0?'+':''}${d.p}</td>
+      <td class="mono" style="color:var(--${d.g<0?'red':'grn'})">${d.g}%</td>`;
+    tb.appendChild(tr);
+  });
+}
+fillTb('lossT',loss);
+fillTb('gainT',gain);
+</script>
+</body>
+</html>
