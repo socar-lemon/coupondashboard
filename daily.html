@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>쿠폰 디비전별 일일 실적 모니터링</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0c0e14;
+  --bg-card: #151821;
+  --bg-card-hover: #1a1e2a;
+  --bg-table-head: #1a1e2a;
+  --bg-table-row: #12151d;
+  --bg-table-row-alt: #151821;
+  --border: #252a38;
+  --text: #e4e6ed;
+  --text-dim: #8890a4;
+  --text-muted: #5a6178;
+  --accent: #6c8cff;
+  --green: #34d399;
+  --green-dim: #065f46;
+  --red: #f87171;
+  --red-dim: #7f1d1d;
+  --yellow: #fbbf24;
+  --yellow-dim: #78350f;
+  --profit-line: #a78bfa;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  line-height: 1.6;
+  padding: 32px 48px;
+  min-width: 1280px;
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Header */
+.header { text-align: center; margin-bottom: 40px; }
+.header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+.header .subtitle { font-size: 14px; color: var(--text-dim); font-weight: 400; }
+.header .date-badge {
+  display: inline-block;
+  margin-top: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 18px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.header .date-badge span { color: var(--accent); font-weight: 600; }
+
+/* Section */
+.section { margin-bottom: 48px; }
+.section-title {
+  font-size: 18px; font-weight: 600;
+  margin-bottom: 20px;
+  padding-left: 14px;
+  border-left: 3px solid var(--accent);
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title .badge {
+  font-size: 11px;
+  background: rgba(108,140,255,0.15);
+  color: var(--accent);
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Chart */
+.chart-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  position: relative;
+}
+.chart-container canvas { width: 100% !important; height: 320px !important; }
+
+/* Table */
+.table-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  background: var(--bg-table-head);
+  padding: 12px 10px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 2;
+}
+thead th:first-child { text-align: left; padding-left: 18px; }
+tbody tr { transition: background 0.15s; }
+tbody tr:hover { background: var(--bg-card-hover); }
+tbody td {
+  padding: 10px 10px;
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  border-bottom: 1px solid rgba(37,42,56,0.5);
+  white-space: nowrap;
+}
+tbody td:first-child {
+  text-align: left;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 500;
+  padding-left: 18px;
+  font-size: 13px;
+}
+tbody tr:nth-child(even) { background: var(--bg-table-row-alt); }
+tbody tr:nth-child(odd) { background: var(--bg-table-row); }
+tbody tr:hover { background: var(--bg-card-hover) !important; }
+tbody tr.total-row {
+  background: rgba(108,140,255,0.08) !important;
+  font-weight: 700;
+  border-top: 2px solid var(--accent);
+}
+tbody tr.total-row td { font-weight: 700; font-size: 13px; }
+
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+.gpm-good { color: var(--green); }
+.gpm-bad { color: var(--red); }
+.gpm-warn { color: var(--yellow); }
+
+/* Cards */
+.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px 24px;
+  border-top: 3px solid var(--border);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.card.issue { border-top-color: var(--red); }
+.card.good { border-top-color: var(--green); }
+.card .card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.card .card-title { font-size: 15px; font-weight: 600; }
+.card .card-gpm {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 600;
+  padding: 2px 10px; border-radius: 6px;
+}
+.card.issue .card-gpm { background: var(--red-dim); color: var(--red); }
+.card.good .card-gpm { background: var(--green-dim); color: var(--green); }
+.card .card-body { font-size: 13px; color: var(--text-dim); line-height: 1.8; }
+.card .card-body strong { color: var(--text); font-weight: 500; }
+.card .card-action {
+  margin-top: 12px;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  display: inline-block;
+}
+.card.issue .card-action { background: rgba(248,113,113,0.1); color: var(--red); }
+.card.good .card-action { background: rgba(52,211,153,0.1); color: var(--green); }
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>쿠폰 디비전별 일일 실적 모니터링</h1>
+  <div class="subtitle">반납기준 | 단위: 백만원 | YoY&middot;WoW(동요일) 비교</div>
+  <div class="date-badge">데이터 기준일: <span>2026-03-25 (수)</span></div>
+</div>
+
+<!-- Section 1: Daily Total KPI -->
+<div class="section">
+  <div class="section-title">일일 전체 KPI <span class="badge">최근 7일</span></div>
+  <div class="chart-container">
+    <canvas id="kpiChart"></canvas>
+  </div>
+</div>
+
+<!-- Section 2: Group-level Table -->
+<div class="section">
+  <div class="section-title">디비전별 일일 실적 <span class="badge">반납기준 매출</span></div>
+  <div class="table-wrap">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th style="min-width:110px">유형</th>
+          <th>3/19<br><span style="font-weight:400;color:#5a6178">목</span></th>
+          <th>3/20<br><span style="font-weight:400;color:#5a6178">금</span></th>
+          <th>3/21<br><span style="font-weight:400;color:#5a6178">토</span></th>
+          <th>3/22<br><span style="font-weight:400;color:#5a6178">일</span></th>
+          <th>3/23<br><span style="font-weight:400;color:#5a6178">월</span></th>
+          <th>3/24<br><span style="font-weight:400;color:#5a6178">화</span></th>
+          <th>3/25<br><span style="font-weight:400;color:#5a6178">수</span></th>
+          <th>WoW<br><span style="font-weight:400;color:#5a6178">vs 3/18</span></th>
+          <th>YoY<br><span style="font-weight:400;color:#5a6178">vs '25</span></th>
+          <th>14일<br>평균</th>
+          <th>GPM<br><span style="font-weight:400;color:#5a6178">3/25</span></th>
+          <th style="text-align:center">판정</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Section 3: Key Issues -->
+<div class="section">
+  <div class="section-title">주요 이슈 & 액션 <span class="badge" style="background:rgba(248,113,113,0.15);color:var(--red)">주의</span></div>
+  <div class="card-grid">
+    <div class="card issue">
+      <div class="card-header">
+        <div class="card-title">심야쿠폰</div>
+        <div class="card-gpm">GPM -80.4%</div>
+      </div>
+      <div class="card-body">
+        <strong>매일 40~50M 규모 적자 지속</strong><br>
+        반납기준 매출 안정적이나 구조적으로 원가 초과<br>
+        퇴근쿠폰 9,900원 제한으로도 GPM 개선 미흡
+      </div>
+      <div class="card-action">Action: 퇴근쿠폰 9,900원 제한 필요</div>
+    </div>
+    <div class="card issue">
+      <div class="card-header">
+        <div class="card-title">수요대응</div>
+        <div class="card-gpm">GPM -21.7%</div>
+      </div>
+      <div class="card-body">
+        <strong>땡처리 쿠폰 과도 할인</strong><br>
+        일 10~14M 수준이나 적자 구조 지속<br>
+        단가 하한선 부재로 수익성 악화
+      </div>
+      <div class="card-action">Action: 19,900원/29,900원 단가 상향</div>
+    </div>
+    <div class="card issue">
+      <div class="card-header">
+        <div class="card-title">당일최저가</div>
+        <div class="card-gpm">GPM -22.3%</div>
+      </div>
+      <div class="card-body">
+        <strong>구조적 적자 상품</strong><br>
+        일 6~9M 수준, 매출 대비 손실 과다<br>
+        얼리버드 대비 GPM 열위 (-22% vs +37%)
+      </div>
+      <div class="card-action">Action: 얼리버드로 대체 확대</div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 4: Top Performers -->
+<div class="section">
+  <div class="section-title">우수 실적 디비전 <span class="badge" style="background:rgba(52,211,153,0.15);color:var(--green)">양호</span></div>
+  <div class="card-grid">
+    <div class="card good">
+      <div class="card-header">
+        <div class="card-title">얼리버드</div>
+        <div class="card-gpm">GPM +37.3%</div>
+      </div>
+      <div class="card-body">
+        <strong>전체 디비전 중 가장 건전한 수익 구조</strong><br>
+        일 8~15M 수준, 성장 여력 충분<br>
+        당일최저가 대체 상품으로 적합
+      </div>
+      <div class="card-action">Action: 물량 확대 추진</div>
+    </div>
+    <div class="card good">
+      <div class="card-header">
+        <div class="card-title">특가존</div>
+        <div class="card-gpm">GPM +29.2%</div>
+      </div>
+      <div class="card-body">
+        <strong>안정적 수익 구조 유지</strong><br>
+        일 19~60M, 주말 피크 패턴 뚜렷<br>
+        GPM 29% 수준 지속 유지 중
+      </div>
+      <div class="card-action">Action: 현 운영 기조 유지</div>
+    </div>
+    <div class="card good">
+      <div class="card-header">
+        <div class="card-title">가격제</div>
+        <div class="card-gpm">GPM +26.9%</div>
+      </div>
+      <div class="card-body">
+        <strong>주력 매출 디비전</strong><br>
+        일 228~426M, 전체 매출의 약 45% 차지<br>
+        WoW +10% 성장세 유지
+      </div>
+      <div class="card-action">Action: 현 운영 기조 유지</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  쿠폰 실적 모니터링 대시보드 &middot; 데이터 갱신: 2026-03-26 09:00 &middot; 쏘카 프라이싱셀
+</div>
+
+<script>
+// === DATA ===
+const groups = [
+  { name:'가격제',     rev:[268.9,316.2,367.9,426.0,252.7,228.8,247.5], gpm:26.9, wow:10.0, wowPrev:224.9, yoy:null,   yoyNote:'신규' },
+  { name:'첫사용/윈백', rev:[90.6,108.3,163.7,205.4,100.3,98.7,99.1],  gpm:19.2, wow:14.6, wowPrev:86.5,  yoy:null,   yoyNote:'신규' },
+  { name:'심야쿠폰',   rev:[50.3,43.2,0.3,5.5,41.4,49.3,50.7],         gpm:-80.4, wow:4.3,  wowPrev:48.6, yoy:299.2,  yoyPrev:12.7 },
+  { name:'패스포트',   rev:[38.8,48.5,77.1,76.9,40.1,33.9,36.8],       gpm:19.6, wow:-2.9,  wowPrev:37.9, yoy:-82.2,  yoyPrev:206.6 },
+  { name:'B2B',       rev:[55.3,56.9,27.3,30.8,27.2,41.7,54.9],       gpm:25.7, wow:8.3,   wowPrev:50.7, yoy:66.4,   yoyPrev:33.0 },
+  { name:'특가존',     rev:[21.6,25.2,46.0,60.7,26.4,21.4,19.3],       gpm:29.2, wow:-12.3, wowPrev:22.0, yoy:null,   yoyNote:'신규' },
+  { name:'수요대응',   rev:[11.6,13.5,24.2,24.0,14.4,10.0,10.3],       gpm:-21.7, wow:-5.5, wowPrev:10.9, yoy:null,   yoyNote:'신규' },
+  { name:'당일최저가', rev:[9.0,19.6,30.7,14.0,8.1,5.9,6.6],           gpm:-22.3, wow:-18.5,wowPrev:8.1,  yoy:null,   yoyNote:'신규' },
+  { name:'전기차',     rev:[12.6,11.6,10.0,34.1,14.6,11.5,11.2],       gpm:19.5, wow:3.7,   wowPrev:10.8, yoy:null,   yoyNote:'신규' },
+  { name:'얼리버드',   rev:[5.3,8.5,15.2,40.4,13.3,7.9,8.0],           gpm:37.3, wow:11.1,  wowPrev:7.2,  yoy:null,   yoyNote:'신규' },
+  { name:'편도',       rev:[3.5,3.4,2.7,2.1,1.3,1.2,1.7],             gpm:18.3, wow:-5.6,  wowPrev:1.8,  yoy:null,   yoyNote:'신규' },
+  { name:'프로모션',   rev:[4.3,1.4,5.1,5.4,2.2,1.8,1.4],             gpm:-4.1, wow:-30.0, wowPrev:2.0,  yoy:null,   yoyNote:'신규' },
+  { name:'STF',       rev:[2.5,2.2,1.6,4.3,1.7,2.7,1.3],             gpm:-6.3, wow:-27.8, wowPrev:1.8,  yoy:null,   yoyNote:'신규' },
+  { name:'기타',       rev:[3.1,3.0,5.5,9.0,5.8,5.8,3.9],             gpm:-7.6, wow:-7.1,  wowPrev:4.2,  yoy:-32.8,  yoyPrev:5.8 },
+  { name:'쏘카플랜',   rev:[0.1,0.3,0.1,0.2,0.0,0.1,0.1],             gpm:-238.8,wow:-23.1,wowPrev:0.13, yoy:-92.3,  yoyPrev:1.3 },
+];
+
+const dates = ['3/19','3/20','3/21','3/22','3/23','3/24','3/25'];
+
+// Compute daily totals
+const dailyTotals = dates.map((_,i) => {
+  return groups.reduce((s,g) => s + g.rev[i], 0);
+});
+
+// Approximate daily profit using weighted GPM
+const dailyProfit = dates.map((_,i) => {
+  return groups.reduce((s,g) => s + g.rev[i] * g.gpm / 100, 0);
+});
+
+// 14-day average (approx: use 7-day data * ~factor for illustration; we'll use the 7-day avg as proxy)
+groups.forEach(g => {
+  const avg7 = g.rev.reduce((a,b) => a+b, 0) / 7;
+  g.avg14 = avg7; // proxy
+});
+
+// Status logic
+function getStatus(gpm, wow) {
+  if (gpm < -15) return '\uD83D\uDD34';
+  if (gpm < 0 || wow < -20) return '\uD83D\uDFE1';
+  return '\uD83D\uDFE2';
+}
+
+// Format number
+function fmt(n, dec=1) {
+  if (n === null || n === undefined) return '-';
+  return n.toFixed(dec);
+}
+
+function fmtPct(n) {
+  if (n === null || n === undefined) return '-';
+  const sign = n > 0 ? '+' : '';
+  const cls = n > 0 ? 'pos' : n < 0 ? 'neg' : '';
+  return `<span class="${cls}">${sign}${n.toFixed(1)}%</span>`;
+}
+
+function fmtGpm(n) {
+  const cls = n >= 20 ? 'gpm-good' : n >= 0 ? 'gpm-warn' : 'gpm-bad';
+  const sign = n > 0 ? '+' : '';
+  return `<span class="${cls}">${sign}${n.toFixed(1)}%</span>`;
+}
+
+// Build table
+const tbody = document.querySelector('#mainTable tbody');
+let totalRow = new Array(7).fill(0);
+
+groups.forEach(g => {
+  const tr = document.createElement('tr');
+  const latest = g.rev[6];
+  const status = getStatus(g.gpm, g.wow);
+
+  // YoY
+  let yoyHtml;
+  if (g.yoy !== null && g.yoy !== undefined) {
+    yoyHtml = fmtPct(g.yoy);
+  } else {
+    yoyHtml = '<span style="color:var(--text-muted);font-size:11px">신규</span>';
+  }
+
+  // WoW
+  const wowHtml = fmtPct(g.wow);
+
+  let cells = `<td>${g.name}</td>`;
+  g.rev.forEach((v,i) => {
+    totalRow[i] += v;
+    const intensity = Math.min(v / 300, 1);
+    const bg = `rgba(108,140,255,${(intensity * 0.12).toFixed(3)})`;
+    cells += `<td style="background:${bg}">${fmt(v)}</td>`;
+  });
+  cells += `<td>${wowHtml}</td>`;
+  cells += `<td>${yoyHtml}</td>`;
+  cells += `<td>${fmt(g.avg14)}</td>`;
+  cells += `<td>${fmtGpm(g.gpm)}</td>`;
+  cells += `<td style="text-align:center;font-size:16px">${status}</td>`;
+
+  tr.innerHTML = cells;
+  tbody.appendChild(tr);
+});
+
+// Total row
+const trTotal = document.createElement('tr');
+trTotal.className = 'total-row';
+let totalCells = '<td>합계</td>';
+totalRow.forEach(v => { totalCells += `<td>${fmt(v)}</td>`; });
+// Total WoW: 551.7 vs ~502 approx
+const totalLatest = totalRow[6];
+const totalWowPrev = 502.0;
+const totalWow = ((totalLatest - totalWowPrev) / totalWowPrev * 100);
+totalCells += `<td>${fmtPct(totalWow)}</td>`;
+// Total YoY: ~551.7 vs 624.2
+const totalYoy2025 = 624.2;
+const totalYoY = ((totalLatest - totalYoy2025) / totalYoy2025 * 100);
+totalCells += `<td>${fmtPct(totalYoY)}</td>`;
+const totalAvg14 = totalRow.reduce((a,b)=>a+b,0)/7;
+totalCells += `<td>${fmt(totalAvg14)}</td>`;
+// Weighted GPM
+const weightedGpm = groups.reduce((s,g) => s + g.rev[6]*g.gpm, 0) / totalLatest;
+totalCells += `<td>${fmtGpm(weightedGpm)}</td>`;
+totalCells += '<td style="text-align:center">-</td>';
+trTotal.innerHTML = totalCells;
+tbody.appendChild(trTotal);
+
+// === Chart ===
+const ctx = document.getElementById('kpiChart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: dates,
+    datasets: [
+      {
+        label: '전체 매출 (백만원)',
+        data: dailyTotals.map(v => Math.round(v*10)/10),
+        borderColor: '#6c8cff',
+        backgroundColor: 'rgba(108,140,255,0.1)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        borderWidth: 2.5,
+      },
+      {
+        label: '전체 이익 (백만원)',
+        data: dailyProfit.map(v => Math.round(v*10)/10),
+        borderColor: '#a78bfa',
+        backgroundColor: 'rgba(167,139,250,0.08)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        borderWidth: 2.5,
+        borderDash: [6, 3],
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        labels: {
+          color: '#8890a4',
+          font: { family: 'Noto Sans KR', size: 12 },
+          usePointStyle: true,
+          pointStyle: 'circle',
+        }
+      },
+      tooltip: {
+        backgroundColor: '#1a1e2a',
+        titleColor: '#e4e6ed',
+        bodyColor: '#8890a4',
+        borderColor: '#252a38',
+        borderWidth: 1,
+        titleFont: { family: 'Noto Sans KR', size: 13 },
+        bodyFont: { family: 'JetBrains Mono', size: 12 },
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}M`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(37,42,56,0.5)' },
+        ticks: { color: '#8890a4', font: { family: 'Noto Sans KR', size: 12 } }
+      },
+      y: {
+        grid: { color: 'rgba(37,42,56,0.5)' },
+        ticks: {
+          color: '#8890a4',
+          font: { family: 'JetBrains Mono', size: 11 },
+          callback: v => v.toFixed(0) + 'M'
+        }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
