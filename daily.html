@@ -443,6 +443,107 @@ tbody tr.total-row td { font-weight: 700; font-size: 13px; }
   </div>
 </div>
 
+<!-- Section 6: WoW 건당매출·시간당매출 Gap -->
+<div class="section">
+  <div class="section-title">건당매출 · 시간당매출 WoW 변동 <span class="badge" style="background:rgba(108,140,255,0.15);color:var(--accent)">동요일 비교</span> <span style="font-size:11px;color:var(--text-muted);margin-left:8px">3/26(수) vs 3/19(수)</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <!-- 건당매출 WoW 하락 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;border-top:3px solid var(--red);">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">건당매출 WoW 하락 Top</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">동요일 대비 건당매출이 떨어진 쿠폰</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:10px;">쿠폰</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건수</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건당매출</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">WoW Gap</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">GPM</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">4일이상 65%</td><td style="text-align:right;font-family:'JetBrains Mono'">67</td><td style="text-align:right;font-family:'JetBrains Mono'">396,757</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-40,766 (-9%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">37.5%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">미리예약 55%</td><td style="text-align:right;font-family:'JetBrains Mono'">47</td><td style="text-align:right;font-family:'JetBrains Mono'">143,143</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-19,693 (-12%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">36.7%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">2박3일 55%</td><td style="text-align:right;font-family:'JetBrains Mono'">169</td><td style="text-align:right;font-family:'JetBrains Mono'">166,510</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-8,660 (-5%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">32.8%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">쏘카클럽 56,000원</td><td style="text-align:right;font-family:'JetBrains Mono'">43</td><td style="text-align:right;font-family:'JetBrains Mono'">72,221</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-7,609 (-10%)</td><td style="text-align:right;font-family:'JetBrains Mono'">22.0%</td></tr>
+          <tr><td style="padding:5px 8px;color:var(--yellow)">양산시 55%</td><td style="text-align:right;font-family:'JetBrains Mono'">28</td><td style="text-align:right;font-family:'JetBrains Mono'">54,372</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-5,941 (-10%)</td><td style="text-align:right;font-family:'JetBrains Mono'">6.1%</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;padding:10px 12px;background:rgba(108,140,255,0.06);border-radius:8px;font-size:11px;color:var(--text-dim);line-height:1.6;">
+        장기대여(4일+, 2박3일) 건당매출 하락 → 이용 기간 짧아지는 추세 모니터링 필요<br>
+        GPM은 양호(33~38%)하나 건당매출 하락이 지속되면 매출 총량 감소
+      </div>
+    </div>
+    <!-- 시간당매출 WoW 하락 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;border-top:3px solid var(--red);">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">시간당매출 WoW 하락 Top</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">동요일 대비 시간 효율이 떨어진 쿠폰</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:10px;">쿠폰</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건수</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">시간당매출</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">WoW Gap</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">GPM</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red);font-weight:600">패스포트 심야 9,000원</td><td style="text-align:right;font-family:'JetBrains Mono'">253</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">1,949</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-113 (-6%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-69%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">양산시 55%</td><td style="text-align:right;font-family:'JetBrains Mono'">28</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">6,428</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-1,309 (-17%)</td><td style="text-align:right;font-family:'JetBrains Mono'">6.1%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">58% 할인(24h+)</td><td style="text-align:right;font-family:'JetBrains Mono'">69</td><td style="text-align:right;font-family:'JetBrains Mono'">3,939</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-514 (-12%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">30.2%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">당일최저가 16,900원</td><td style="text-align:right;font-family:'JetBrains Mono'">77</td><td style="text-align:right;font-family:'JetBrains Mono'">4,397</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-472 (-10%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-40%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">쏘카클럽 56,000원</td><td style="text-align:right;font-family:'JetBrains Mono'">43</td><td style="text-align:right;font-family:'JetBrains Mono'">4,092</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-475 (-10%)</td><td style="text-align:right;font-family:'JetBrains Mono'">22.0%</td></tr>
+          <tr><td style="padding:5px 8px;color:var(--yellow)">미리예약 55%</td><td style="text-align:right;font-family:'JetBrains Mono'">47</td><td style="text-align:right;font-family:'JetBrains Mono'">4,113</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-387 (-9%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">36.7%</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;padding:10px 12px;background:rgba(108,140,255,0.06);border-radius:8px;font-size:11px;color:var(--text-dim);line-height:1.6;">
+        시간당 매출 하락은 이용시간 증가(장시간) 또는 단가 하락 의미<br>
+        패스포트 심야(1,949원/h)는 이미 최하위권 — 추가 하락 시 적자 확대
+      </div>
+    </div>
+  </div>
+  <!-- WoW 상승 (양호) -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;border-top:3px solid var(--green);">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">건당매출 WoW 상승 Top</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">동요일 대비 건당매출이 개선된 쿠폰</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:10px;">쿠폰</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건수</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건당매출</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">WoW Gap</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">GPM</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">감사쿠폰 2일55%</td><td style="text-align:right;font-family:'JetBrains Mono'">114</td><td style="text-align:right;font-family:'JetBrains Mono'">150,369</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+16,717 (+13%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">36.7%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">비즈니스 기본 45%</td><td style="text-align:right;font-family:'JetBrains Mono'">101</td><td style="text-align:right;font-family:'JetBrains Mono'">93,513</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+13,473 (+17%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">40.7%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">58% 할인(24h+)</td><td style="text-align:right;font-family:'JetBrains Mono'">69</td><td style="text-align:right;font-family:'JetBrains Mono'">118,307</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+13,558 (+13%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">30.2%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">특가존 60%</td><td style="text-align:right;font-family:'JetBrains Mono'">229</td><td style="text-align:right;font-family:'JetBrains Mono'">97,444</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+10,617 (+12%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">32.3%</td></tr>
+          <tr><td style="padding:5px 8px;color:var(--green)">업무할인 주중60%</td><td style="text-align:right;font-family:'JetBrains Mono'">416</td><td style="text-align:right;font-family:'JetBrains Mono'">99,063</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+10,349 (+12%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">33.0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;border-top:3px solid var(--green);">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">시간당매출 WoW 상승 Top</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">동요일 대비 시간 효율이 개선된 쿠폰</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:10px;">쿠폰</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건수</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">시간당매출</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">WoW Gap</th>
+          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">GPM</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">패스포트 50%(4h+)</td><td style="text-align:right;font-family:'JetBrains Mono'">105</td><td style="text-align:right;font-family:'JetBrains Mono'">8,998</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+1,576 (+21%)</td><td style="text-align:right;font-family:'JetBrains Mono'">23.0%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">4시간미만 30%</td><td style="text-align:right;font-family:'JetBrains Mono'">811</td><td style="text-align:right;font-family:'JetBrains Mono'">15,391</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+859 (+6%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-3.2%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">당일최저가 25,900원</td><td style="text-align:right;font-family:'JetBrains Mono'">93</td><td style="text-align:right;font-family:'JetBrains Mono'">5,213</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+816 (+19%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-6.0%</td></tr>
+          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">주중심야 12,900원</td><td style="text-align:right;font-family:'JetBrains Mono'">384</td><td style="text-align:right;font-family:'JetBrains Mono'">6,517</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+780 (+14%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-49.8%</td></tr>
+          <tr><td style="padding:5px 8px;color:var(--green)">패스포트 50%(편도)</td><td style="text-align:right;font-family:'JetBrains Mono'">439</td><td style="text-align:right;font-family:'JetBrains Mono'">8,566</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+539 (+7%)</td><td style="text-align:right;font-family:'JetBrains Mono'">23.0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <div class="footer">
   쿠폰 실적 모니터링 대시보드 &middot; 데이터 갱신: 2026-03-27 &middot; 쏘카 프라이싱셀
 </div>
