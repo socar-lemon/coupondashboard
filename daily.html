@@ -218,8 +218,11 @@ tbody tr.total-row td { font-weight: 700; font-size: 13px; }
           <th>3/25<br><span style="font-weight:400;color:#5a6178">수</span></th>
           <th>WoW<br><span style="font-weight:400;color:#5a6178">vs 3/18</span></th>
           <th>YoY<br><span style="font-weight:400;color:#5a6178">vs '25</span></th>
-          <th>14일<br>평균</th>
-          <th>GPM<br><span style="font-weight:400;color:#5a6178">3/25</span></th>
+          <th>7일<br>평균</th>
+          <th>매출<br><span style="font-weight:400;color:#5a6178">3/25</span></th>
+          <th>CM%<br><span style="font-weight:400;color:#5a6178">3/25</span></th>
+          <th>GPM<br><span style="font-weight:400;color:#5a6178">목표25%</span></th>
+          <th>건수<br><span style="font-weight:400;color:#5a6178">3/25</span></th>
           <th style="text-align:center">판정</th>
         </tr>
       </thead>
@@ -228,33 +231,22 @@ tbody tr.total-row td { font-weight: 700; font-size: 13px; }
   </div>
 </div>
 
-<!-- Section 3: Key Issues -->
+<!-- Section 3: GPM 목표 25% 미달 — 3관점 진단 -->
 <div class="section">
-  <div class="section-title">주요 이슈 & 액션 <span class="badge" style="background:rgba(248,113,113,0.15);color:var(--red)">주의</span></div>
+  <div class="section-title">GPM 목표(25%) 미달 디비전 <span class="badge" style="background:rgba(248,113,113,0.15);color:var(--red)">적자/미달</span></div>
   <div class="card-grid">
     <div class="card issue">
       <div class="card-header">
-        <div class="card-title">심야쿠폰</div>
+        <div class="card-title">심야쿠폰 (퇴출근 9,900원)</div>
         <div class="card-gpm">GPM -80.4%</div>
       </div>
       <div class="card-body">
-        <strong>매일 40~50M 규모 적자 지속</strong><br>
-        반납기준 매출 안정적이나 구조적으로 원가 초과<br>
-        퇴근쿠폰 9,900원 제한으로도 GPM 개선 미흡
+        <strong style="color:var(--red)">매출 50.7M | CM% 18.9% | Profit -40.8M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> 일 50M 안정적이나 가치 없는 매출<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 18.9%로 변동비도 간신히 커버<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> <strong style="color:var(--red)">일 -40.8M 적자</strong>. 전체 적자의 87%
       </div>
-      <div class="card-action">Action: 퇴근쿠폰 9,900원 제한 필요</div>
-    </div>
-    <div class="card issue">
-      <div class="card-header">
-        <div class="card-title">수요대응</div>
-        <div class="card-gpm">GPM -21.7%</div>
-      </div>
-      <div class="card-body">
-        <strong>땡처리 쿠폰 과도 할인</strong><br>
-        일 10~14M 수준이나 적자 구조 지속<br>
-        단가 하한선 부재로 수익성 악화
-      </div>
-      <div class="card-action">Action: 19,900원/29,900원 단가 상향</div>
+      <div class="card-action">Action: 퇴출근 9,900원 이용시간 8h 상한 또는 폐지</div>
     </div>
     <div class="card issue">
       <div class="card-header">
@@ -262,18 +254,58 @@ tbody tr.total-row td { font-weight: 700; font-size: 13px; }
         <div class="card-gpm">GPM -22.3%</div>
       </div>
       <div class="card-body">
-        <strong>구조적 적자 상품</strong><br>
-        일 6~9M 수준, 매출 대비 손실 과다<br>
-        얼리버드 대비 GPM 열위 (-22% vs +37%)
+        <strong style="color:var(--red)">매출 6.6M | CM% 46.8% | Profit -1.5M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> 일 6~9M 소규모<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 46.8%로 변동비는 커버<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> 고정비 반영 시 적자. 얼리버드(37%) 대비 열위
       </div>
-      <div class="card-action">Action: 얼리버드로 대체 확대</div>
+      <div class="card-action">Action: 얼리버드로 대체 확대. 당일최저가 축소</div>
+    </div>
+    <div class="card issue">
+      <div class="card-header">
+        <div class="card-title">수요대응 (땡처리)</div>
+        <div class="card-gpm">GPM -21.7%</div>
+      </div>
+      <div class="card-body">
+        <strong style="color:var(--red)">매출 10.3M | CM% 47.3% | Profit -2.2M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> 유휴차량 소진 목적이나 단가 과도하게 낮음<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 47.3% — 변동비 커버는 하나 여유 없음<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> 19,900원/29,900원 땡처리가 적자 원인
+      </div>
+      <div class="card-action">Action: 최소 단가 79,900원으로 상향. 저가 땡처리 폐지</div>
+    </div>
+    <div class="card" style="border-top-color:var(--yellow)">
+      <div class="card-header">
+        <div class="card-title">첫사용/윈백</div>
+        <div class="card-gpm" style="background:var(--yellow-dim);color:var(--yellow)">GPM 19.2%</div>
+      </div>
+      <div class="card-body">
+        <strong style="color:var(--yellow)">매출 99.1M | CM% 57.4% | Profit 19.0M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> 일 99M으로 2위 규모. WoW +14.6% 성장<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 57.4%로 양호<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> GPM 19.2%로 목표(25%) 미달 -5.8%p. 흑자이나 개선 필요
+      </div>
+      <div class="card-action">Action: 할인율 조정 검토 (29,900원→34,900원 등)</div>
+    </div>
+    <div class="card" style="border-top-color:var(--yellow)">
+      <div class="card-header">
+        <div class="card-title">패스포트</div>
+        <div class="card-gpm" style="background:var(--yellow-dim);color:var(--yellow)">GPM 19.6%</div>
+      </div>
+      <div class="card-body">
+        <strong style="color:var(--yellow)">매출 36.8M | CM% 58.2% | Profit 7.2M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> YoY -82.2% 대폭 축소 (206.6→36.8M)<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 58.2% 양호하나 구독 구조 변경 영향<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> GPM 19.6% 목표 미달. 건수 607건으로 축소
+      </div>
+      <div class="card-action">Action: 구독 구조 안정화 모니터링</div>
     </div>
   </div>
 </div>
 
-<!-- Section 4: Top Performers -->
+<!-- Section 4: GPM 25% 달성 디비전 -->
 <div class="section">
-  <div class="section-title">우수 실적 디비전 <span class="badge" style="background:rgba(52,211,153,0.15);color:var(--green)">양호</span></div>
+  <div class="section-title">GPM 목표(25%) 달성 디비전 <span class="badge" style="background:rgba(52,211,153,0.15);color:var(--green)">달성</span></div>
   <div class="card-grid">
     <div class="card good">
       <div class="card-header">
@@ -281,11 +313,12 @@ tbody tr.total-row td { font-weight: 700; font-size: 13px; }
         <div class="card-gpm">GPM +37.3%</div>
       </div>
       <div class="card-body">
-        <strong>전체 디비전 중 가장 건전한 수익 구조</strong><br>
-        일 8~15M 수준, 성장 여력 충분<br>
-        당일최저가 대체 상품으로 적합
+        <strong style="color:var(--green)">매출 8.0M | CM% 65.3% | Profit 3.0M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> 소규모이나 WoW +11.1% 성장세<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 65.3%로 전체 최고<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> GPM 37.3%로 목표 +12.3%p 초과. 가장 건전
       </div>
-      <div class="card-action">Action: 물량 확대 추진</div>
+      <div class="card-action">Action: 적극 물량 확대. 당일최저가 대체 상품으로 육성</div>
     </div>
     <div class="card good">
       <div class="card-header">
@@ -293,23 +326,38 @@ tbody tr.total-row td { font-weight: 700; font-size: 13px; }
         <div class="card-gpm">GPM +29.2%</div>
       </div>
       <div class="card-body">
-        <strong>안정적 수익 구조 유지</strong><br>
-        일 19~60M, 주말 피크 패턴 뚜렷<br>
-        GPM 29% 수준 지속 유지 중
+        <strong style="color:var(--green)">매출 19.3M | CM% 62.1% | Profit 5.6M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> 일 19~60M, 주말 피크 뚜렷<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 62.1%로 안정<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> GPM 29.2%로 목표 +4.2%p 초과
       </div>
-      <div class="card-action">Action: 현 운영 기조 유지</div>
+      <div class="card-action">Action: 현 운영 유지</div>
     </div>
     <div class="card good">
       <div class="card-header">
-        <div class="card-title">가격제</div>
+        <div class="card-title">가격제 (주력)</div>
         <div class="card-gpm">GPM +26.9%</div>
       </div>
       <div class="card-body">
-        <strong>주력 매출 디비전</strong><br>
-        일 228~426M, 전체 매출의 약 45% 차지<br>
-        WoW +10% 성장세 유지
+        <strong style="color:var(--green)">매출 247.5M | CM% 63.4% | Profit 66.5M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> 전체의 45%. WoW +10% 성장. 2,854건<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 63.4%로 양호<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> GPM 26.9%로 목표 +1.9%p 달성. 전체 이익의 핵심
       </div>
-      <div class="card-action">Action: 현 운영 기조 유지</div>
+      <div class="card-action">Action: 유지. 4시간미만(GPM -13%) 구간만 모니터링</div>
+    </div>
+    <div class="card good">
+      <div class="card-header">
+        <div class="card-title">B2B</div>
+        <div class="card-gpm">GPM +26.1%</div>
+      </div>
+      <div class="card-body">
+        <strong style="color:var(--green)">매출 54.9M | CM% 62.6% | Profit 14.2M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> YoY +66.4% 성장. 724건<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 62.6% 안정<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> GPM 26.1%로 목표 +1.1%p 달성
+      </div>
+      <div class="card-action">Action: B2B 확대 지속</div>
     </div>
   </div>
 </div>
@@ -320,22 +368,23 @@ tbody tr.total-row td { font-weight: 700; font-size: 13px; }
 
 <script>
 // === DATA ===
+// GPM 심각한 순 (ASC) — GPM 목표: 25%
 const groups = [
-  { name:'가격제',     rev:[268.9,316.2,367.9,426.0,252.7,228.8,247.5], gpm:26.9, wow:10.0, wowPrev:224.9, yoy:null,   yoyNote:'신규' },
-  { name:'첫사용/윈백', rev:[90.6,108.3,163.7,205.4,100.3,98.7,99.1],  gpm:19.2, wow:14.6, wowPrev:86.5,  yoy:null,   yoyNote:'신규' },
-  { name:'심야쿠폰',   rev:[50.3,43.2,0.3,5.5,41.4,49.3,50.7],         gpm:-80.4, wow:4.3,  wowPrev:48.6, yoy:299.2,  yoyPrev:12.7 },
-  { name:'패스포트',   rev:[38.8,48.5,77.1,76.9,40.1,33.9,36.8],       gpm:19.6, wow:-2.9,  wowPrev:37.9, yoy:-82.2,  yoyPrev:206.6 },
-  { name:'B2B',       rev:[55.3,56.9,27.3,30.8,27.2,41.7,54.9],       gpm:25.7, wow:8.3,   wowPrev:50.7, yoy:66.4,   yoyPrev:33.0 },
-  { name:'특가존',     rev:[21.6,25.2,46.0,60.7,26.4,21.4,19.3],       gpm:29.2, wow:-12.3, wowPrev:22.0, yoy:null,   yoyNote:'신규' },
-  { name:'수요대응',   rev:[11.6,13.5,24.2,24.0,14.4,10.0,10.3],       gpm:-21.7, wow:-5.5, wowPrev:10.9, yoy:null,   yoyNote:'신규' },
-  { name:'당일최저가', rev:[9.0,19.6,30.7,14.0,8.1,5.9,6.6],           gpm:-22.3, wow:-18.5,wowPrev:8.1,  yoy:null,   yoyNote:'신규' },
-  { name:'전기차',     rev:[12.6,11.6,10.0,34.1,14.6,11.5,11.2],       gpm:19.5, wow:3.7,   wowPrev:10.8, yoy:null,   yoyNote:'신규' },
-  { name:'얼리버드',   rev:[5.3,8.5,15.2,40.4,13.3,7.9,8.0],           gpm:37.3, wow:11.1,  wowPrev:7.2,  yoy:null,   yoyNote:'신규' },
-  { name:'편도',       rev:[3.5,3.4,2.7,2.1,1.3,1.2,1.7],             gpm:18.3, wow:-5.6,  wowPrev:1.8,  yoy:null,   yoyNote:'신규' },
-  { name:'프로모션',   rev:[4.3,1.4,5.1,5.4,2.2,1.8,1.4],             gpm:-4.1, wow:-30.0, wowPrev:2.0,  yoy:null,   yoyNote:'신규' },
-  { name:'STF',       rev:[2.5,2.2,1.6,4.3,1.7,2.7,1.3],             gpm:-6.3, wow:-27.8, wowPrev:1.8,  yoy:null,   yoyNote:'신규' },
-  { name:'기타',       rev:[3.1,3.0,5.5,9.0,5.8,5.8,3.9],             gpm:-7.6, wow:-7.1,  wowPrev:4.2,  yoy:-32.8,  yoyPrev:5.8 },
-  { name:'쏘카플랜',   rev:[0.1,0.3,0.1,0.2,0.0,0.1,0.1],             gpm:-238.8,wow:-23.1,wowPrev:0.13, yoy:-92.3,  yoyPrev:1.3 },
+  { name:'쏘카플랜',   rev:[0.1,0.3,0.1,0.2,0.0,0.1,0.1],  cm_pct:-51.0, gpm:-238.8, wow:-23.1, wowPrev:0.13, yoy:-92.3, yoyPrev:1.3,  rev25:0.1, cm25:-0.0, pft25:-0.2, cnt25:5 },
+  { name:'심야쿠폰',   rev:[50.3,43.2,0.3,5.5,41.4,49.3,50.7], cm_pct:18.9, gpm:-80.4, wow:4.3, wowPrev:48.6, yoy:299.2, yoyPrev:12.7, rev25:50.7, cm25:9.6, pft25:-40.8, cnt25:2345 },
+  { name:'당일최저가', rev:[9.0,19.6,30.7,14.0,8.1,5.9,6.6],   cm_pct:46.8, gpm:-22.3, wow:-18.5, wowPrev:8.1, yoy:null, yoyNote:'신규', rev25:6.6, cm25:3.1, pft25:-1.5, cnt25:189 },
+  { name:'수요대응',   rev:[11.6,13.5,24.2,24.0,14.4,10.0,10.3], cm_pct:47.3, gpm:-21.7, wow:-5.5, wowPrev:10.9, yoy:null, yoyNote:'신규', rev25:10.3, cm25:4.9, pft25:-2.2, cnt25:192 },
+  { name:'기타',       rev:[3.1,3.0,5.5,9.0,5.8,5.8,3.9],       cm_pct:52.9, gpm:-7.6, wow:-7.1, wowPrev:4.2, yoy:-32.8, yoyPrev:5.8, rev25:3.9, cm25:2.1, pft25:-0.3, cnt25:58 },
+  { name:'STF',       rev:[2.5,2.2,1.6,4.3,1.7,2.7,1.3],       cm_pct:55.1, gpm:-6.3, wow:-27.8, wowPrev:1.8, yoy:null, yoyNote:'신규', rev25:1.3, cm25:0.7, pft25:-0.1, cnt25:13 },
+  { name:'프로모션',   rev:[4.3,1.4,5.1,5.4,2.2,1.8,1.4],       cm_pct:52.1, gpm:-4.1, wow:-30.0, wowPrev:2.0, yoy:null, yoyNote:'신규', rev25:1.4, cm25:0.7, pft25:-0.1, cnt25:19 },
+  { name:'편도',       rev:[3.5,3.4,2.7,2.1,1.3,1.2,1.7],       cm_pct:50.6, gpm:18.3, wow:-5.6, wowPrev:1.8, yoy:null, yoyNote:'신규', rev25:1.7, cm25:0.8, pft25:0.3, cnt25:23 },
+  { name:'첫사용/윈백', rev:[90.6,108.3,163.7,205.4,100.3,98.7,99.1], cm_pct:57.4, gpm:19.2, wow:14.6, wowPrev:86.5, yoy:null, yoyNote:'신규', rev25:99.1, cm25:56.9, pft25:19.0, cnt25:1416 },
+  { name:'전기차',     rev:[12.6,11.6,10.0,34.1,14.6,11.5,11.2], cm_pct:60.1, gpm:19.5, wow:3.7, wowPrev:10.8, yoy:null, yoyNote:'신규', rev25:11.2, cm25:6.8, pft25:2.2, cnt25:67 },
+  { name:'패스포트',   rev:[38.8,48.5,77.1,76.9,40.1,33.9,36.8], cm_pct:58.2, gpm:19.6, wow:-2.9, wowPrev:37.9, yoy:-82.2, yoyPrev:206.6, rev25:36.8, cm25:21.4, pft25:7.2, cnt25:607 },
+  { name:'B2B',       rev:[55.3,56.9,27.3,30.8,27.2,41.7,54.9], cm_pct:62.6, gpm:26.1, wow:8.3, wowPrev:50.7, yoy:66.4, yoyPrev:33.0, rev25:54.9, cm25:33.9, pft25:14.2, cnt25:724 },
+  { name:'가격제',     rev:[268.9,316.2,367.9,426.0,252.7,228.8,247.5], cm_pct:63.4, gpm:26.9, wow:10.0, wowPrev:224.9, yoy:null, yoyNote:'신규', rev25:247.5, cm25:157.0, pft25:66.5, cnt25:2854 },
+  { name:'특가존',     rev:[21.6,25.2,46.0,60.7,26.4,21.4,19.3], cm_pct:62.1, gpm:29.2, wow:-12.3, wowPrev:22.0, yoy:null, yoyNote:'신규', rev25:19.3, cm25:12.0, pft25:5.6, cnt25:212 },
+  { name:'얼리버드',   rev:[5.3,8.5,15.2,40.4,13.3,7.9,8.0],     cm_pct:65.3, gpm:37.3, wow:11.1, wowPrev:7.2, yoy:null, yoyNote:'신규', rev25:8.0, cm25:5.2, pft25:3.0, cnt25:40 },
 ];
 
 const dates = ['3/19','3/20','3/21','3/22','3/23','3/24','3/25'];
@@ -356,11 +405,11 @@ groups.forEach(g => {
   g.avg14 = avg7; // proxy
 });
 
-// Status logic
+// Status logic — GPM 목표 25%
 function getStatus(gpm, wow) {
-  if (gpm < -15) return '\uD83D\uDD34';
-  if (gpm < 0 || wow < -20) return '\uD83D\uDFE1';
-  return '\uD83D\uDFE2';
+  if (gpm < 0) return '\uD83D\uDD34';       // 적자
+  if (gpm < 25) return '\uD83D\uDFE1';      // 목표 미달
+  return '\uD83D\uDFE2';                     // 목표 달성
 }
 
 // Format number
@@ -412,7 +461,10 @@ groups.forEach(g => {
   cells += `<td>${wowHtml}</td>`;
   cells += `<td>${yoyHtml}</td>`;
   cells += `<td>${fmt(g.avg14)}</td>`;
+  cells += `<td style="font-weight:600">${fmt(g.rev25||g.rev[6])}</td>`;
+  cells += `<td>${fmtGpm(g.cm_pct)}</td>`;
   cells += `<td>${fmtGpm(g.gpm)}</td>`;
+  cells += `<td style="text-align:right;font-size:11px">${(g.cnt25||0).toLocaleString()}</td>`;
   cells += `<td style="text-align:center;font-size:16px">${status}</td>`;
 
   tr.innerHTML = cells;
@@ -435,9 +487,15 @@ const totalYoY = ((totalLatest - totalYoy2025) / totalYoy2025 * 100);
 totalCells += `<td>${fmtPct(totalYoY)}</td>`;
 const totalAvg14 = totalRow.reduce((a,b)=>a+b,0)/7;
 totalCells += `<td>${fmt(totalAvg14)}</td>`;
+totalCells += `<td style="font-weight:600">${fmt(totalLatest)}</td>`;
+// Weighted CM%
+const weightedCm = groups.reduce((s,g) => s + (g.rev25||g.rev[6])*(g.cm_pct||0), 0) / totalLatest;
+totalCells += `<td>${fmtGpm(weightedCm)}</td>`;
 // Weighted GPM
-const weightedGpm = groups.reduce((s,g) => s + g.rev[6]*g.gpm, 0) / totalLatest;
+const weightedGpm = groups.reduce((s,g) => s + (g.rev25||g.rev[6])*g.gpm, 0) / totalLatest;
 totalCells += `<td>${fmtGpm(weightedGpm)}</td>`;
+const totalCnt = groups.reduce((s,g) => s + (g.cnt25||0), 0);
+totalCells += `<td style="text-align:right;font-size:11px">${totalCnt.toLocaleString()}</td>`;
 totalCells += '<td style="text-align:center">-</td>';
 trTotal.innerHTML = totalCells;
 tbody.appendChild(trTotal);
