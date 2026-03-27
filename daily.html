@@ -237,16 +237,30 @@ tbody tr.total-row td { font-weight: 700; font-size: 13px; }
   <div class="card-grid">
     <div class="card issue">
       <div class="card-header">
-        <div class="card-title">심야쿠폰 (퇴출근 9,900원)</div>
-        <div class="card-gpm">GPM -80.4%</div>
+        <div class="card-title">퇴출근쿠폰 9,900원 (#16243)</div>
+        <div class="card-gpm">GPM -85.6%</div>
       </div>
       <div class="card-body">
-        <strong style="color:var(--red)">매출 50.7M | CM% 18.9% | Profit -40.8M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 일 50M 안정적이나 가치 없는 매출<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 18.9%로 변동비도 간신히 커버<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> <strong style="color:var(--red)">일 -40.8M 적자</strong>. 전체 적자의 87%
+        <strong style="color:var(--red)">매출 41.7M | CM% 16.5% | Profit -35.7M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> 일 1,997건/41.7M. 건당 20,880원으로 전체 건당매출(6.3만) 하방 압박<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 16.5%로 변동비조차 간신히 커버. 차량 원가 미반영<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> <strong style="color:var(--red)">일 -35.7M 적자 (전체 일일 적자의 76%)</strong><br>
+        <span style="color:#fbbf24">이 쿠폰 제거 시 건당매출 6.3→7.4만원, GPM 9.1%→~16%로 개선</span>
       </div>
-      <div class="card-action">Action: 퇴출근 9,900원 이용시간 8h 상한 또는 폐지</div>
+      <div class="card-action">Action: 이용시간 8h 상한 / 주말 OFF / 단가 상향 (9,900→19,900원)</div>
+    </div>
+    <div class="card issue">
+      <div class="card-header">
+        <div class="card-title">심야쿠폰 (패스포트 심야 등)</div>
+        <div class="card-gpm">GPM -56.2%</div>
+      </div>
+      <div class="card-body">
+        <strong style="color:var(--red)">매출 9.0M | CM% 29.9% | Profit -5.1M</strong><br>
+        <span style="color:var(--text-dim)">매출 관점:</span> 일 348건/9M. 퇴출근 대비 소규모<br>
+        <span style="color:var(--text-dim)">CM% 관점:</span> 29.9%로 퇴출근(16.5%)보다 양호하나 여전히 적자<br>
+        <span style="color:var(--text-dim)">손익 관점:</span> 일 -5.1M 적자. 패스포트 심야 9,000원/18,900원이 원인
+      </div>
+      <div class="card-action">Action: 심야 단가 상향 (9,000→15,000원)</div>
     </div>
     <div class="card issue">
       <div class="card-header">
@@ -371,7 +385,8 @@ tbody tr.total-row td { font-weight: 700; font-size: 13px; }
 // GPM 심각한 순 (ASC) — GPM 목표: 25%
 const groups = [
   { name:'쏘카플랜',   rev:[0.1,0.3,0.1,0.2,0.0,0.1,0.1],  cm_pct:-51.0, gpm:-238.8, wow:-23.1, wowPrev:0.13, yoy:-92.3, yoyPrev:1.3,  rev25:0.1, cm25:-0.0, pft25:-0.2, cnt25:5 },
-  { name:'심야쿠폰',   rev:[50.3,43.2,0.3,5.5,41.4,49.3,50.7], cm_pct:18.9, gpm:-80.4, wow:4.3, wowPrev:48.6, yoy:299.2, yoyPrev:12.7, rev25:50.7, cm25:9.6, pft25:-40.8, cnt25:2345 },
+  { name:'퇴출근9900', rev:[40.8,34.6,0.1,4.5,33.4,40.5,41.7], cm_pct:16.5, gpm:-85.6, wow:-2.2, wowPrev:42.6, yoy:null, yoyNote:'신규', rev25:41.7, cm25:6.9, pft25:-35.7, cnt25:1997 },
+  { name:'심야쿠폰(기타)', rev:[9.5,8.7,0.2,1.0,8.0,8.8,9.0], cm_pct:29.9, gpm:-56.2, wow:2.3, wowPrev:8.8, yoy:null, yoyNote:'패스포트심야', rev25:9.0, cm25:2.7, pft25:-5.1, cnt25:348 },
   { name:'당일최저가', rev:[9.0,19.6,30.7,14.0,8.1,5.9,6.6],   cm_pct:46.8, gpm:-22.3, wow:-18.5, wowPrev:8.1, yoy:null, yoyNote:'신규', rev25:6.6, cm25:3.1, pft25:-1.5, cnt25:189 },
   { name:'수요대응',   rev:[11.6,13.5,24.2,24.0,14.4,10.0,10.3], cm_pct:47.3, gpm:-21.7, wow:-5.5, wowPrev:10.9, yoy:null, yoyNote:'신규', rev25:10.3, cm25:4.9, pft25:-2.2, cnt25:192 },
   { name:'기타',       rev:[3.1,3.0,5.5,9.0,5.8,5.8,3.9],       cm_pct:52.9, gpm:-7.6, wow:-7.1, wowPrev:4.2, yoy:-32.8, yoyPrev:5.8, rev25:3.9, cm25:2.1, pft25:-0.3, cnt25:58 },
