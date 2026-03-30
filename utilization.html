@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>얼리버드 × 가동률 현황 (W13)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0e14;--card:#14161e;--border:#1e2130;--text:#e2e4ea;--text-dim:#8b8fa3;--accent:#6c8aff;--green:#34d399;--yellow:#fbbf24;--red:#f87171;--orange:#fb923c}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;padding:24px;min-height:100vh}
+.mono{font-family:'JetBrains Mono',monospace}
+.container{max-width:1440px;margin:0 auto}
+header{text-align:center;margin-bottom:32px;padding:32px 0 24px}
+header h1{font-size:28px;font-weight:900;letter-spacing:-0.5px;background:linear-gradient(135deg,#6c8aff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header p{color:var(--text-dim);font-size:13px;margin-top:8px}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:32px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0}
+.kpi-card.blue::before{background:linear-gradient(90deg,#6c8aff,#818cf8)}
+.kpi-card.green::before{background:linear-gradient(90deg,#34d399,#6ee7b7)}
+.kpi-card.orange::before{background:linear-gradient(90deg,#fb923c,#fbbf24)}
+.kpi-card.red::before{background:linear-gradient(90deg,#f87171,#fb7185)}
+.kpi-label{font-size:12px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+.kpi-value{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;margin:8px 0 4px}
+.kpi-sub{font-size:12px;color:var(--text-dim)}
+
+.section{margin-bottom:32px}
+.section-title{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-controls{padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border);align-items:center}
+.table-controls label{font-size:12px;color:var(--text-dim);margin-right:4px}
+.table-controls select,.table-controls input{background:#1a1c28;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:12px;font-family:'Noto Sans KR',sans-serif}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:#1a1c28;position:sticky;top:0;z-index:1}
+th{padding:10px 12px;text-align:left;font-weight:600;font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.3px;white-space:nowrap;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+th .sort-arrow{margin-left:4px;font-size:10px}
+td{padding:9px 12px;border-bottom:1px solid #1a1c28;white-space:nowrap}
+tr:hover td{background:#1a1c2a}
+.num{text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-red{background:rgba(248,113,113,0.15);color:var(--red)}
+.badge-yellow{background:rgba(251,191,36,0.15);color:var(--yellow)}
+.badge-green{background:rgba(52,211,153,0.15);color:var(--green)}
+.bar-cell{width:100px;position:relative}
+.bar-bg{height:6px;border-radius:3px;background:#1e2130;position:relative;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+
+.chart-container{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}
+.chart-box{position:relative;height:480px}
+
+.excl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px}
+.excl-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.excl-card h4{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.excl-list{list-style:none}
+.excl-list li{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1a1c28;font-size:13px}
+.excl-list li:last-child{border:none}
+.excl-list .zone{font-weight:500}
+.excl-list .detail{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)}
+.excl-summary{margin-top:12px;padding:10px 14px;background:#1a1c28;border-radius:8px;font-size:12px;color:var(--text-dim)}
+.excl-summary strong{color:var(--text)}
+
+footer{text-align:center;padding:32px 0 16px;color:var(--text-dim);font-size:11px;border-top:1px solid var(--border);margin-top:24px}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>얼리버드 &times; 가동률 현황 (W13)</h1>
+<p>지역&times;차종별 유휴율과 얼리버드 기여도 &nbsp;|&nbsp; W13 (3/23~3/29) &nbsp;|&nbsp; 기준일: 2026.03.30</p>
+</header>
+
+<!-- Section 1: KPIs -->
+<div class="kpi-grid" id="kpiGrid"></div>
+
+<!-- Section 2: Main Table -->
+<div class="section">
+<div class="section-title"><span class="dot"></span>지역 &times; 차종별 가동률 &amp; 얼리버드 현황</div>
+<div class="table-wrap">
+<div class="table-controls">
+<label>차종:</label>
+<select id="filterCarGroup"><option value="all">전체</option></select>
+<label>제외추천:</label>
+<select id="filterStatus">
+<option value="all">전체</option>
+<option value="제외 권장">제외 권장</option>
+<option value="검토">검토</option>
+<option value="유지">유지</option>
+</select>
+<label>검색:</label>
+<input type="text" id="searchInput" placeholder="지역명...">
+</div>
+<div class="table-scroll">
+<table id="mainTable">
+<thead>
+<tr>
+<th data-col="region">지역 <span class="sort-arrow"></span></th>
+<th data-col="car_group">차종그룹 <span class="sort-arrow"></span></th>
+<th data-col="dp_cars" class="num">배포대수 <span class="sort-arrow"></span></th>
+<th data-col="util_rate" class="num">가동률 <span class="sort-arrow"></span></th>
+<th data-col="idle_rate" class="num">유휴율 <span class="sort-arrow"></span></th>
+<th>유휴율</th>
+<th data-col="idle_cars" class="num">유휴차량 <span class="sort-arrow"></span></th>
+<th data-col="eb_cnt" class="num">얼리버드건수 <span class="sort-arrow"></span></th>
+<th data-col="eb_rev" class="num">매출(M) <span class="sort-arrow"></span></th>
+<th data-col="eb_gpm" class="num">GPM <span class="sort-arrow"></span></th>
+<th data-col="status">제외 추천 <span class="sort-arrow"></span></th>
+</tr>
+</thead>
+<tbody id="mainBody"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Section 3: Region Chart -->
+<div class="section">
+<div class="section-title"><span class="dot"></span>지역별 유휴율 요약</div>
+<div class="chart-container">
+<div class="chart-box"><canvas id="regionChart"></canvas></div>
+</div>
+</div>
+
+<!-- Section 4: Exclusion Recommendations -->
+<div class="section">
+<div class="section-title"><span class="dot"></span>제외 추천 구간</div>
+<div class="excl-grid" id="exclGrid"></div>
+</div>
+
+<footer>얼리버드 &times; 가동률 대시보드 &nbsp;|&nbsp; W13 반납기준 &nbsp;|&nbsp; 2026.03.30</footer>
+</div>
+
+<script>
+// === DATA ===
+const utilData = [
+{region:"충청북도",car_group:"EV",util_rate:60.6,idle_rate:39.4,dp_cars:70,idle_cars:4},
+{region:"부산광역시",car_group:"EV",util_rate:53.8,idle_rate:46.2,dp_cars:259,idle_cars:32},
+{region:"인천광역시",car_group:"EV",util_rate:52.6,idle_rate:47.4,dp_cars:270,idle_cars:52},
+{region:"대전광역시",car_group:"EV",util_rate:52.4,idle_rate:47.6,dp_cars:140,idle_cars:21},
+{region:"경기도",car_group:"EV",util_rate:52.3,idle_rate:47.7,dp_cars:886,idle_cars:150},
+{region:"서울특별시",car_group:"EV",util_rate:52.2,idle_rate:47.8,dp_cars:2008,idle_cars:393},
+{region:"광주광역시",car_group:"EV",util_rate:51.8,idle_rate:48.2,dp_cars:133,idle_cars:24},
+{region:"대구광역시",car_group:"EV",util_rate:51.0,idle_rate:49.0,dp_cars:112,idle_cars:22},
+{region:"울산광역시",car_group:"EV",util_rate:50.6,idle_rate:49.4,dp_cars:84,idle_cars:15},
+{region:"전라북도",car_group:"EV",util_rate:49.6,idle_rate:50.4,dp_cars:42,idle_cars:10},
+{region:"경상북도",car_group:"EV",util_rate:49.0,idle_rate:51.0,dp_cars:63,idle_cars:8},
+{region:"경상남도",car_group:"EV",util_rate:46.0,idle_rate:54.0,dp_cars:133,idle_cars:30},
+{region:"충청남도",car_group:"EV",util_rate:45.3,idle_rate:54.7,dp_cars:49,idle_cars:14},
+{region:"전라남도",car_group:"EV",util_rate:35.8,idle_rate:64.2,dp_cars:105,idle_cars:39},
+{region:"세종특별자치시",car_group:"EV",util_rate:36.9,idle_rate:63.1,dp_cars:35,idle_cars:10},
+{region:"부산광역시",car_group:"중형이상",util_rate:46.1,idle_rate:53.9,dp_cars:1314,idle_cars:183},
+{region:"경상남도",car_group:"중형이상",util_rate:42.3,idle_rate:57.7,dp_cars:436,idle_cars:76},
+{region:"인천광역시",car_group:"중형이상",util_rate:39.3,idle_rate:60.7,dp_cars:828,idle_cars:191},
+{region:"경상북도",car_group:"중형이상",util_rate:39.4,idle_rate:60.6,dp_cars:682,idle_cars:152},
+{region:"광주광역시",car_group:"중형이상",util_rate:38.1,idle_rate:61.9,dp_cars:478,idle_cars:105},
+{region:"충청북도",car_group:"중형이상",util_rate:37.7,idle_rate:62.3,dp_cars:330,idle_cars:85},
+{region:"전라남도",car_group:"중형이상",util_rate:37.5,idle_rate:62.5,dp_cars:483,idle_cars:120},
+{region:"서울특별시",car_group:"중형이상",util_rate:37.0,idle_rate:63.0,dp_cars:4456,idle_cars:1032},
+{region:"경기도",car_group:"중형이상",util_rate:36.2,idle_rate:63.8,dp_cars:2859,idle_cars:709},
+{region:"충청남도",car_group:"중형이상",util_rate:36.1,idle_rate:63.9,dp_cars:428,idle_cars:91},
+{region:"대전광역시",car_group:"중형이상",util_rate:36.7,idle_rate:63.3,dp_cars:436,idle_cars:81},
+{region:"울산광역시",car_group:"중형이상",util_rate:35.2,idle_rate:64.8,dp_cars:433,idle_cars:123},
+{region:"전라북도",car_group:"중형이상",util_rate:33.9,idle_rate:66.1,dp_cars:302,idle_cars:72},
+{region:"대구광역시",car_group:"중형이상",util_rate:33.5,idle_rate:66.5,dp_cars:660,idle_cars:162},
+{region:"강원도",car_group:"중형이상",util_rate:31.5,idle_rate:68.5,dp_cars:404,idle_cars:126},
+{region:"세종특별자치시",car_group:"중형이상",util_rate:29.9,idle_rate:70.1,dp_cars:65,idle_cars:18},
+{region:"경상남도",car_group:"중형미만",util_rate:39.4,idle_rate:60.6,dp_cars:3036,idle_cars:505},
+{region:"경상북도",car_group:"중형미만",util_rate:39.1,idle_rate:60.9,dp_cars:3503,idle_cars:757},
+{region:"부산광역시",car_group:"중형미만",util_rate:36.7,idle_rate:63.3,dp_cars:5334,idle_cars:805},
+{region:"전라남도",car_group:"중형미만",util_rate:41.0,idle_rate:59.0,dp_cars:2016,idle_cars:387},
+{region:"울산광역시",car_group:"중형미만",util_rate:36.1,idle_rate:63.9,dp_cars:1343,idle_cars:255},
+{region:"충청남도",car_group:"중형미만",util_rate:36.7,idle_rate:63.3,dp_cars:2245,idle_cars:410},
+{region:"대전광역시",car_group:"중형미만",util_rate:35.2,idle_rate:64.8,dp_cars:1868,idle_cars:333},
+{region:"대구광역시",car_group:"중형미만",util_rate:35.2,idle_rate:64.8,dp_cars:2474,idle_cars:458},
+{region:"전라북도",car_group:"중형미만",util_rate:34.8,idle_rate:65.2,dp_cars:1732,idle_cars:340},
+{region:"충청북도",car_group:"중형미만",util_rate:34.4,idle_rate:65.6,dp_cars:1854,idle_cars:436},
+{region:"서울특별시",car_group:"중형미만",util_rate:33.1,idle_rate:66.9,dp_cars:18466,idle_cars:3378},
+{region:"인천광역시",car_group:"중형미만",util_rate:33.2,idle_rate:66.8,dp_cars:3508,idle_cars:773},
+{region:"경기도",car_group:"중형미만",util_rate:33.5,idle_rate:66.5,dp_cars:15260,idle_cars:3163},
+{region:"광주광역시",car_group:"중형미만",util_rate:32.9,idle_rate:67.1,dp_cars:1853,idle_cars:393},
+{region:"강원도",car_group:"중형미만",util_rate:32.3,idle_rate:67.7,dp_cars:2834,idle_cars:887},
+{region:"세종특별자치시",car_group:"중형미만",util_rate:32.2,idle_rate:67.8,dp_cars:476,idle_cars:111}
+];
+
+const ebData = [
+{region:"서울특별시",car_group:"중형미만",eb_cnt:83,eb_rev:14.0,eb_gpm:34.0},
+{region:"서울특별시",car_group:"중형이상",eb_cnt:22,eb_rev:5.3,eb_gpm:35.2},
+{region:"서울특별시",car_group:"승합/RV",eb_cnt:25,eb_rev:6.5,eb_gpm:37.1},
+{region:"서울특별시",car_group:"EV",eb_cnt:14,eb_rev:2.3,eb_gpm:21.4},
+{region:"서울특별시",car_group:"수입",eb_cnt:2,eb_rev:0.7,eb_gpm:21.9},
+{region:"경기도",car_group:"중형미만",eb_cnt:49,eb_rev:8.0,eb_gpm:29.4},
+{region:"경기도",car_group:"중형이상",eb_cnt:10,eb_rev:2.4,eb_gpm:37.7},
+{region:"경기도",car_group:"승합/RV",eb_cnt:19,eb_rev:7.0,eb_gpm:42.4},
+{region:"경기도",car_group:"EV",eb_cnt:7,eb_rev:1.0,eb_gpm:16.2},
+{region:"경상북도",car_group:"중형미만",eb_cnt:90,eb_rev:12.9,eb_gpm:36.9},
+{region:"경상북도",car_group:"중형이상",eb_cnt:21,eb_rev:4.0,eb_gpm:43.3},
+{region:"경상북도",car_group:"승합/RV",eb_cnt:9,eb_rev:2.2,eb_gpm:49.3},
+{region:"전라남도",car_group:"중형미만",eb_cnt:62,eb_rev:9.3,eb_gpm:36.8},
+{region:"전라남도",car_group:"중형이상",eb_cnt:18,eb_rev:4.3,eb_gpm:43.6},
+{region:"전라남도",car_group:"승합/RV",eb_cnt:7,eb_rev:2.0,eb_gpm:45.5},
+{region:"강원도",car_group:"중형미만",eb_cnt:46,eb_rev:6.3,eb_gpm:31.7},
+{region:"강원도",car_group:"중형이상",eb_cnt:8,eb_rev:1.3,eb_gpm:34.8},
+{region:"부산광역시",car_group:"중형미만",eb_cnt:42,eb_rev:6.7,eb_gpm:37.1},
+{region:"부산광역시",car_group:"중형이상",eb_cnt:22,eb_rev:4.6,eb_gpm:41.4},
+{region:"부산광역시",car_group:"승합/RV",eb_cnt:17,eb_rev:4.2,eb_gpm:47.9},
+{region:"전라북도",car_group:"중형미만",eb_cnt:23,eb_rev:3.4,eb_gpm:35.6},
+{region:"인천광역시",car_group:"중형미만",eb_cnt:13,eb_rev:3.0,eb_gpm:34.0},
+{region:"인천광역시",car_group:"중형이상",eb_cnt:8,eb_rev:2.2,eb_gpm:34.2},
+{region:"대구광역시",car_group:"중형미만",eb_cnt:13,eb_rev:2.1,eb_gpm:32.0},
+{region:"대전광역시",car_group:"중형미만",eb_cnt:8,eb_rev:1.1,eb_gpm:26.5},
+{region:"울산광역시",car_group:"중형미만",eb_cnt:9,eb_rev:1.2,eb_gpm:31.8},
+{region:"충청남도",car_group:"중형미만",eb_cnt:6,eb_rev:0.9,eb_gpm:39.1},
+{region:"충청북도",car_group:"중형미만",eb_cnt:7,eb_rev:1.2,eb_gpm:33.3}
+];
+
+// === JOIN DATA ===
+const ebMap = {};
+ebData.forEach(e => { ebMap[e.region+'|'+e.car_group] = e; });
+
+const joined = utilData.map(u => {
+    const key = u.region+'|'+u.car_group;
+    const e = ebMap[key] || {eb_cnt:0, eb_rev:0, eb_gpm:0};
+    let status, statusClass;
+    if (u.idle_rate < 50) { status='제외 권장'; statusClass='badge-red'; }
+    else if (u.idle_rate <= 60) { status='검토'; statusClass='badge-yellow'; }
+    else { status='유지'; statusClass='badge-green'; }
+    return {...u, eb_cnt:e.eb_cnt, eb_rev:e.eb_rev, eb_gpm:e.eb_gpm, status, statusClass};
+});
+
+// Sort by idle_rate ascending by default
+joined.sort((a,b) => a.idle_rate - b.idle_rate);
+
+// === KPIs ===
+const totalDpCars = utilData.reduce((s,u) => s+u.dp_cars, 0);
+const weightedIdle = utilData.reduce((s,u) => s + u.idle_rate * u.dp_cars, 0) / totalDpCars;
+const totalEbCnt = ebData.reduce((s,e) => s+e.eb_cnt, 0);
+const totalEbRev = ebData.reduce((s,e) => s+e.eb_rev, 0);
+const weightedGpm = ebData.reduce((s,e) => s + e.eb_gpm * e.eb_rev, 0) / totalEbRev;
+const excludeCount = joined.filter(r => r.idle_rate < 50).length;
+
+document.getElementById('kpiGrid').innerHTML = `
+<div class="kpi-card blue">
+    <div class="kpi-label">전체 평균 유휴율 (가중)</div>
+    <div class="kpi-value">${weightedIdle.toFixed(1)}%</div>
+    <div class="kpi-sub">배포대수 가중 평균 | 총 ${totalDpCars.toLocaleString()}대</div>
+</div>
+<div class="kpi-card green">
+    <div class="kpi-label">얼리버드 W13 실적</div>
+    <div class="kpi-value">${totalEbCnt.toLocaleString()}건</div>
+    <div class="kpi-sub">매출 ${totalEbRev.toFixed(0)}M | GPM ${weightedGpm.toFixed(1)}%</div>
+</div>
+<div class="kpi-card orange">
+    <div class="kpi-label">분석 대상 구간</div>
+    <div class="kpi-value">${joined.length}개</div>
+    <div class="kpi-sub">지역 ${[...new Set(utilData.map(u=>u.region))].length}개 &times; 차종 ${[...new Set(utilData.map(u=>u.car_group))].length}개</div>
+</div>
+<div class="kpi-card red">
+    <div class="kpi-label">유휴율 50% 미만 (제외 대상)</div>
+    <div class="kpi-value">${excludeCount}개</div>
+    <div class="kpi-sub">가동률 높아 얼리버드 불필요 구간</div>
+</div>`;
+
+// === POPULATE FILTERS ===
+const carGroups = [...new Set(utilData.map(u=>u.car_group))].sort();
+const cgSelect = document.getElementById('filterCarGroup');
+carGroups.forEach(cg => { const o=document.createElement('option'); o.value=cg; o.textContent=cg; cgSelect.appendChild(o); });
+
+// === TABLE RENDERING ===
+let sortCol = 'idle_rate', sortAsc = true;
+
+function getBarColor(idle) {
+    if (idle < 50) return 'var(--red)';
+    if (idle <= 60) return 'var(--yellow)';
+    return 'var(--green)';
+}
+
+function renderTable() {
+    const cgFilter = document.getElementById('filterCarGroup').value;
+    const stFilter = document.getElementById('filterStatus').value;
+    const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+    let data = [...joined];
+    if (cgFilter !== 'all') data = data.filter(r => r.car_group === cgFilter);
+    if (stFilter !== 'all') data = data.filter(r => r.status === stFilter);
+    if (search) data = data.filter(r => r.region.toLowerCase().includes(search));
+
+    data.sort((a,b) => {
+        let va = a[sortCol], vb = b[sortCol];
+        if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+        if (va < vb) return sortAsc ? -1 : 1;
+        if (va > vb) return sortAsc ? 1 : -1;
+        return 0;
+    });
+
+    const tbody = document.getElementById('mainBody');
+    tbody.innerHTML = data.map(r => `<tr>
+        <td>${r.region}</td>
+        <td>${r.car_group}</td>
+        <td class="num">${r.dp_cars.toLocaleString()}</td>
+        <td class="num">${r.util_rate.toFixed(1)}%</td>
+        <td class="num" style="color:${getBarColor(r.idle_rate)}">${r.idle_rate.toFixed(1)}%</td>
+        <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${r.idle_rate}%;background:${getBarColor(r.idle_rate)}"></div></div></td>
+        <td class="num">${r.idle_cars.toLocaleString()}</td>
+        <td class="num">${r.eb_cnt > 0 ? r.eb_cnt.toLocaleString() : '-'}</td>
+        <td class="num">${r.eb_rev > 0 ? r.eb_rev.toFixed(1) : '-'}</td>
+        <td class="num">${r.eb_gpm > 0 ? r.eb_gpm.toFixed(1)+'%' : '-'}</td>
+        <td><span class="badge ${r.statusClass}">${r.status === '제외 권장' ? '\u{1F534}' : r.status === '검토' ? '\u{1F7E1}' : '\u{1F7E2}'} ${r.status}</span></td>
+    </tr>`).join('');
+
+    // Update sort arrows
+    document.querySelectorAll('#mainTable th').forEach(th => {
+        const arrow = th.querySelector('.sort-arrow');
+        if (!arrow) return;
+        const col = th.dataset.col;
+        if (col === sortCol) arrow.textContent = sortAsc ? '\u25B2' : '\u25BC';
+        else arrow.textContent = '';
+    });
+}
+
+// Sort on header click
+document.querySelectorAll('#mainTable th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        if (col === sortCol) sortAsc = !sortAsc;
+        else { sortCol = col; sortAsc = true; }
+        renderTable();
+    });
+});
+
+// Map data-col to object keys
+const colMap = {region:'region',car_group:'car_group',dp_cars:'dp_cars',util_rate:'util_rate',idle_rate:'idle_rate',idle_cars:'idle_cars',eb_cnt:'eb_cnt',eb_rev:'eb_rev',eb_gpm:'eb_gpm',status:'status'};
+
+document.getElementById('filterCarGroup').addEventListener('change', renderTable);
+document.getElementById('filterStatus').addEventListener('change', renderTable);
+document.getElementById('searchInput').addEventListener('input', renderTable);
+
+renderTable();
+
+// === REGION CHART ===
+const regionAgg = {};
+utilData.forEach(u => {
+    if (!regionAgg[u.region]) regionAgg[u.region] = {dp:0, idleW:0, ebCnt:0, ebRev:0};
+    regionAgg[u.region].dp += u.dp_cars;
+    regionAgg[u.region].idleW += u.idle_rate * u.dp_cars;
+});
+ebData.forEach(e => {
+    if (!regionAgg[e.region]) regionAgg[e.region] = {dp:0, idleW:0, ebCnt:0, ebRev:0};
+    regionAgg[e.region].ebCnt += e.eb_cnt;
+    regionAgg[e.region].ebRev += e.eb_rev;
+});
+
+const regionList = Object.entries(regionAgg).map(([r,v]) => ({
+    region: r,
+    idle_rate: v.dp > 0 ? v.idleW / v.dp : 0,
+    dp_cars: v.dp,
+    eb_cnt: v.ebCnt,
+    eb_rev: v.ebRev
+})).sort((a,b) => a.idle_rate - b.idle_rate);
+
+const ctx = document.getElementById('regionChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: regionList.map(r => r.region),
+        datasets: [{
+            label: '유휴율 (%)',
+            data: regionList.map(r => r.idle_rate.toFixed(1)),
+            backgroundColor: regionList.map(r => {
+                if (r.idle_rate < 50) return 'rgba(248,113,113,0.7)';
+                if (r.idle_rate <= 60) return 'rgba(251,191,36,0.7)';
+                return 'rgba(52,211,153,0.7)';
+            }),
+            borderColor: regionList.map(r => {
+                if (r.idle_rate < 50) return '#f87171';
+                if (r.idle_rate <= 60) return '#fbbf24';
+                return '#34d399';
+            }),
+            borderWidth: 1,
+            borderRadius: 4,
+            barPercentage: 0.7
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#14161e',
+                borderColor: '#1e2130',
+                borderWidth: 1,
+                titleFont: { family: 'Noto Sans KR' },
+                bodyFont: { family: 'JetBrains Mono', size: 12 },
+                callbacks: {
+                    afterLabel: function(ctx) {
+                        const r = regionList[ctx.dataIndex];
+                        return `배포: ${r.dp_cars.toLocaleString()}대 | 얼리버드: ${r.eb_cnt}건 (${r.eb_rev.toFixed(1)}M)`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: '#1e2130' },
+                ticks: { color: '#8b8fa3', font: { family: 'JetBrains Mono', size: 11 }, callback: v => v+'%' },
+                min: 0, max: 80
+            },
+            y: {
+                grid: { display: false },
+                ticks: { color: '#e2e4ea', font: { family: 'Noto Sans KR', size: 12 } }
+            }
+        }
+    }
+});
+
+// === EXCLUSION RECOMMENDATIONS ===
+const excludeRows = joined.filter(r => r.idle_rate < 50).sort((a,b) => a.idle_rate - b.idle_rate);
+const reviewRows = joined.filter(r => r.idle_rate >= 50 && r.idle_rate <= 60).sort((a,b) => a.idle_rate - b.idle_rate);
+
+const exclEbCnt = excludeRows.reduce((s,r) => s+r.eb_cnt, 0);
+const exclEbRev = excludeRows.reduce((s,r) => s+r.eb_rev, 0);
+const reviewEbCnt = reviewRows.reduce((s,r) => s+r.eb_cnt, 0);
+const reviewEbRev = reviewRows.reduce((s,r) => s+r.eb_rev, 0);
+
+document.getElementById('exclGrid').innerHTML = `
+<div class="excl-card" style="border-left:3px solid var(--red)">
+    <h4>\u{1F534} 제외 권장 (유휴율 &lt; 50%) &mdash; ${excludeRows.length}개 구간</h4>
+    <ul class="excl-list">
+        ${excludeRows.map(r => `<li>
+            <span class="zone">${r.region} &middot; ${r.car_group}</span>
+            <span class="detail">유휴 ${r.idle_rate.toFixed(1)}% | 배포 ${r.dp_cars.toLocaleString()}대 | EB ${r.eb_cnt}건 ${r.eb_rev.toFixed(1)}M</span>
+        </li>`).join('')}
+    </ul>
+    <div class="excl-summary">제외 시 영향: 얼리버드 <strong>${exclEbCnt}건</strong> / <strong>${exclEbRev.toFixed(1)}M</strong> 감소 예상</div>
+</div>
+<div class="excl-card" style="border-left:3px solid var(--yellow)">
+    <h4>\u{1F7E1} 검토 필요 (유휴율 50~60%) &mdash; ${reviewRows.length}개 구간</h4>
+    <ul class="excl-list">
+        ${reviewRows.map(r => `<li>
+            <span class="zone">${r.region} &middot; ${r.car_group}</span>
+            <span class="detail">유휴 ${r.idle_rate.toFixed(1)}% | 배포 ${r.dp_cars.toLocaleString()}대 | EB ${r.eb_cnt}건 ${r.eb_rev.toFixed(1)}M</span>
+        </li>`).join('')}
+    </ul>
+    <div class="excl-summary">검토 구간 영향: 얼리버드 <strong>${reviewEbCnt}건</strong> / <strong>${reviewEbRev.toFixed(1)}M</strong></div>
+</div>`;
+</script>
+</body>
+</html>
