@@ -119,7 +119,45 @@ footer{text-align:center;padding:32px 0 16px;color:var(--text-dim);font-size:11p
 </div>
 </div>
 
-<!-- Section 3: Region Chart -->
+<!-- Section 3: Zone Ranking -->
+<div class="section">
+<div class="section-title"><span class="dot"></span>Zone별 가동률 랭킹 (전기차 제외, 배포 5대 이상)</div>
+<div class="table-wrap">
+<div class="table-controls">
+<label>지역:</label>
+<select id="zoneFilterRegion"><option value="all">전체</option></select>
+<label>검색:</label>
+<input type="text" id="zoneSearch" placeholder="존 이름...">
+</div>
+<div class="table-scroll" style="max-height:600px;overflow-y:auto">
+<table id="zoneTable">
+<thead>
+<tr>
+<th data-zcol="rank" class="num" style="width:50px">순위 <span class="sort-arrow"></span></th>
+<th data-zcol="zone_id" class="num">Zone ID <span class="sort-arrow"></span></th>
+<th data-zcol="zone_name">Zone명 <span class="sort-arrow"></span></th>
+<th data-zcol="region1">지역 <span class="sort-arrow"></span></th>
+<th data-zcol="dp_cars" class="num">배포대수 <span class="sort-arrow"></span></th>
+<th data-zcol="util_rate" class="num">가동률 <span class="sort-arrow"></span></th>
+<th>가동률</th>
+<th data-zcol="idle_rate" class="num">유휴율 <span class="sort-arrow"></span></th>
+</tr>
+</thead>
+<tbody id="zoneBody"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Section 3b: Zone Chart -->
+<div class="section">
+<div class="section-title"><span class="dot"></span>Zone별 가동률 Top 20 (전기차 제외)</div>
+<div class="chart-container">
+<div class="chart-box" style="height:560px"><canvas id="zoneChart"></canvas></div>
+</div>
+</div>
+
+<!-- Section 4: Region Chart -->
 <div class="section">
 <div class="section-title"><span class="dot"></span>지역별 유휴율 요약</div>
 <div class="chart-container">
@@ -318,6 +356,179 @@ document.getElementById('filterStatus').addEventListener('change', renderTable);
 document.getElementById('searchInput').addEventListener('input', renderTable);
 
 renderTable();
+
+// === ZONE DATA (전기차 제외, 배포 5대 이상, 가동률 Top 50) ===
+const zoneData = [
+{zone_id:6721,zone_name:"진북동 와이 식자재마트",region1:"전라북도",dp_cars:6,util_rate:63.1,idle_rate:36.9},
+{zone_id:1661,zone_name:"서원대학교 뒤",region1:"충청북도",dp_cars:7,util_rate:59.3,idle_rate:40.7},
+{zone_id:1406,zone_name:"논현역 1번출구",region1:"서울특별시",dp_cars:5,util_rate:58.1,idle_rate:41.9},
+{zone_id:16161,zone_name:"역곡역 1번출구(남부광장)",region1:"경기도",dp_cars:14,util_rate:58.1,idle_rate:41.9},
+{zone_id:7183,zone_name:"마산고속버스터미널 옆",region1:"경상남도",dp_cars:5,util_rate:56.2,idle_rate:43.8},
+{zone_id:14491,zone_name:"부산역(KTX) 라마다앙코르호텔",region1:"부산광역시",dp_cars:40,util_rate:56.1,idle_rate:43.9},
+{zone_id:20271,zone_name:"인스파이어 리조트",region1:"인천광역시",dp_cars:5,util_rate:55.6,idle_rate:44.4},
+{zone_id:685,zone_name:"김해공항 국내선",region1:"부산광역시",dp_cars:48,util_rate:55.1,idle_rate:44.9},
+{zone_id:9668,zone_name:"금천롯데캐슬골드파크 3차",region1:"서울특별시",dp_cars:8,util_rate:55.0,idle_rate:45.0},
+{zone_id:13764,zone_name:"인동 새천년사우나",region1:"경상북도",dp_cars:5,util_rate:54.8,idle_rate:45.2},
+{zone_id:18468,zone_name:"여천역 앞(KTX)",region1:"전라남도",dp_cars:5,util_rate:54.4,idle_rate:45.6},
+{zone_id:5730,zone_name:"고양터미널",region1:"경기도",dp_cars:12,util_rate:54.4,idle_rate:45.6},
+{zone_id:13297,zone_name:"파라다이스시티 호텔",region1:"인천광역시",dp_cars:12,util_rate:54.3,idle_rate:45.7},
+{zone_id:22406,zone_name:"영종SK뷰",region1:"인천광역시",dp_cars:10,util_rate:54.1,idle_rate:45.9},
+{zone_id:14322,zone_name:"구례구역 앞(KTX)",region1:"전라남도",dp_cars:22,util_rate:53.8,idle_rate:46.2},
+{zone_id:11949,zone_name:"이마트 통영점",region1:"경상남도",dp_cars:5,util_rate:53.8,idle_rate:46.2},
+{zone_id:2754,zone_name:"죽전역환승민영주차장",region1:"경기도",dp_cars:5,util_rate:53.8,idle_rate:46.2},
+{zone_id:645,zone_name:"부산역 5번출구",region1:"부산광역시",dp_cars:12,util_rate:53.7,idle_rate:46.3},
+{zone_id:13962,zone_name:"초량역 2번출구",region1:"부산광역시",dp_cars:5,util_rate:53.6,idle_rate:46.4},
+{zone_id:588,zone_name:"구로전화국사거리",region1:"서울특별시",dp_cars:7,util_rate:53.4,idle_rate:46.6},
+{zone_id:4387,zone_name:"통영종합버스터미널",region1:"경상남도",dp_cars:10,util_rate:53.3,idle_rate:46.7},
+{zone_id:1573,zone_name:"경전철의정부역 1번출구(잠실감자탕)",region1:"경기도",dp_cars:5,util_rate:53.0,idle_rate:47.0},
+{zone_id:20266,zone_name:"더예스클라우드",region1:"인천광역시",dp_cars:5,util_rate:52.9,idle_rate:47.1},
+{zone_id:4788,zone_name:"상남 위드필타워",region1:"경상남도",dp_cars:7,util_rate:52.6,idle_rate:47.4},
+{zone_id:9536,zone_name:"당산 이레빌딩",region1:"서울특별시",dp_cars:6,util_rate:52.3,idle_rate:47.7},
+{zone_id:20091,zone_name:"공도 시그니쳐타워",region1:"경기도",dp_cars:5,util_rate:52.3,idle_rate:47.7},
+{zone_id:18403,zone_name:"부산역 1번출구",region1:"부산광역시",dp_cars:5,util_rate:52.3,idle_rate:47.7},
+{zone_id:18457,zone_name:"운서역 2번출구",region1:"인천광역시",dp_cars:6,util_rate:52.2,idle_rate:47.8},
+{zone_id:1735,zone_name:"구로디지털단지역 2번출구",region1:"서울특별시",dp_cars:27,util_rate:52.0,idle_rate:48.0},
+{zone_id:12575,zone_name:"서운중학교 뒤",region1:"서울특별시",dp_cars:5,util_rate:51.8,idle_rate:48.2},
+{zone_id:9866,zone_name:"경주역(KTX)",region1:"경상북도",dp_cars:21,util_rate:51.5,idle_rate:48.5},
+{zone_id:13274,zone_name:"익산역 앞 젊음의거리(KTX)",region1:"전라북도",dp_cars:7,util_rate:51.3,idle_rate:48.7},
+{zone_id:18376,zone_name:"수원매산타워",region1:"경기도",dp_cars:7,util_rate:51.1,idle_rate:48.9},
+{zone_id:9465,zone_name:"여술근린공원 앞",region1:"경기도",dp_cars:5,util_rate:50.9,idle_rate:49.1},
+{zone_id:17542,zone_name:"증미역 NH서울타워",region1:"서울특별시",dp_cars:6,util_rate:50.8,idle_rate:49.2},
+{zone_id:6384,zone_name:"구미역 옆",region1:"경상북도",dp_cars:8,util_rate:50.8,idle_rate:49.2},
+{zone_id:18231,zone_name:"더예스포레스트 오피스텔",region1:"인천광역시",dp_cars:5,util_rate:50.6,idle_rate:49.4},
+{zone_id:12844,zone_name:"서울숲역 5번출구(D타워)",region1:"서울특별시",dp_cars:25,util_rate:50.5,idle_rate:49.5},
+{zone_id:12515,zone_name:"여수공항 앞(A)",region1:"전라남도",dp_cars:15,util_rate:50.2,idle_rate:49.8},
+{zone_id:9134,zone_name:"진부역(KTX)",region1:"강원도",dp_cars:11,util_rate:49.9,idle_rate:50.1},
+{zone_id:2687,zone_name:"선부광장",region1:"경기도",dp_cars:5,util_rate:49.8,idle_rate:50.2},
+{zone_id:2927,zone_name:"부산역(KTX) 옆",region1:"부산광역시",dp_cars:26,util_rate:49.4,idle_rate:50.6},
+{zone_id:18591,zone_name:"군자역 4번출구",region1:"서울특별시",dp_cars:5,util_rate:49.3,idle_rate:50.7},
+{zone_id:17393,zone_name:"서대전역(KTX) 옆",region1:"대전광역시",dp_cars:5,util_rate:49.2,idle_rate:50.8},
+{zone_id:12009,zone_name:"동백 쥬네브썬월드",region1:"경기도",dp_cars:16,util_rate:49.1,idle_rate:50.9},
+{zone_id:20711,zone_name:"수서역 1번출구",region1:"서울특별시",dp_cars:5,util_rate:49.1,idle_rate:50.9},
+{zone_id:11670,zone_name:"여수종합버스터미널",region1:"전라남도",dp_cars:5,util_rate:49.0,idle_rate:51.0},
+{zone_id:19942,zone_name:"모현농협",region1:"경기도",dp_cars:5,util_rate:48.9,idle_rate:51.1},
+{zone_id:12084,zone_name:"경주역(KTX) 제일고속철",region1:"경상북도",dp_cars:174,util_rate:48.7,idle_rate:51.3},
+{zone_id:22726,zone_name:"구의역 NC이스트폴",region1:"서울특별시",dp_cars:8,util_rate:48.5,idle_rate:51.5}
+];
+
+// Zone ranking with rank numbers
+zoneData.forEach((z,i) => { z.rank = i+1; });
+
+// Populate zone region filter
+const zoneRegions = [...new Set(zoneData.map(z=>z.region1))].sort();
+const zrSelect = document.getElementById('zoneFilterRegion');
+zoneRegions.forEach(r => { const o=document.createElement('option'); o.value=r; o.textContent=r; zrSelect.appendChild(o); });
+
+// Zone table rendering
+let zSortCol = 'util_rate', zSortAsc = false;
+
+function getUtilColor(rate) {
+    if (rate >= 55) return 'var(--green)';
+    if (rate >= 50) return 'var(--yellow)';
+    return 'var(--red)';
+}
+
+function renderZoneTable() {
+    const regionF = document.getElementById('zoneFilterRegion').value;
+    const search = document.getElementById('zoneSearch').value.trim().toLowerCase();
+    let data = [...zoneData];
+    if (regionF !== 'all') data = data.filter(z => z.region1 === regionF);
+    if (search) data = data.filter(z => z.zone_name.toLowerCase().includes(search) || String(z.zone_id).includes(search));
+    data.sort((a,b) => {
+        let va=a[zSortCol], vb=b[zSortCol];
+        if (typeof va==='string') { va=va.toLowerCase(); vb=vb.toLowerCase(); }
+        return zSortAsc ? (va<vb?-1:va>vb?1:0) : (va>vb?-1:va<vb?1:0);
+    });
+    document.getElementById('zoneBody').innerHTML = data.map(z => `<tr>
+        <td class="num" style="color:var(--text-dim)">${z.rank}</td>
+        <td class="num" style="color:var(--text-dim);font-size:11px">${z.zone_id}</td>
+        <td style="font-weight:500;max-width:280px;overflow:hidden;text-overflow:ellipsis">${z.zone_name}</td>
+        <td>${z.region1}</td>
+        <td class="num">${z.dp_cars.toLocaleString()}</td>
+        <td class="num" style="color:${getUtilColor(z.util_rate)};font-weight:700">${z.util_rate.toFixed(1)}%</td>
+        <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${z.util_rate}%;background:${getUtilColor(z.util_rate)}"></div></div></td>
+        <td class="num">${z.idle_rate.toFixed(1)}%</td>
+    </tr>`).join('');
+    document.querySelectorAll('#zoneTable th').forEach(th => {
+        const arrow = th.querySelector('.sort-arrow');
+        if (!arrow) return;
+        const col = th.dataset.zcol;
+        if (col === zSortCol) arrow.textContent = zSortAsc ? '\u25B2' : '\u25BC';
+        else arrow.textContent = '';
+    });
+}
+
+document.querySelectorAll('#zoneTable th[data-zcol]').forEach(th => {
+    th.addEventListener('click', () => {
+        const col = th.dataset.zcol;
+        if (col === zSortCol) zSortAsc = !zSortAsc;
+        else { zSortCol = col; zSortAsc = col === 'util_rate' ? false : true; }
+        renderZoneTable();
+    });
+});
+document.getElementById('zoneFilterRegion').addEventListener('change', renderZoneTable);
+document.getElementById('zoneSearch').addEventListener('input', renderZoneTable);
+renderZoneTable();
+
+// === ZONE CHART (Top 20) ===
+const zoneTop20 = zoneData.slice(0, 20);
+const zCtx = document.getElementById('zoneChart').getContext('2d');
+new Chart(zCtx, {
+    type: 'bar',
+    data: {
+        labels: zoneTop20.map(z => z.zone_name.length > 18 ? z.zone_name.slice(0,18)+'…' : z.zone_name),
+        datasets: [{
+            label: '가동률 (%)',
+            data: zoneTop20.map(z => z.util_rate),
+            backgroundColor: zoneTop20.map(z => {
+                if (z.util_rate >= 55) return 'rgba(52,211,153,0.7)';
+                if (z.util_rate >= 50) return 'rgba(251,191,36,0.7)';
+                return 'rgba(248,113,113,0.7)';
+            }),
+            borderColor: zoneTop20.map(z => {
+                if (z.util_rate >= 55) return '#34d399';
+                if (z.util_rate >= 50) return '#fbbf24';
+                return '#f87171';
+            }),
+            borderWidth: 1,
+            borderRadius: 4,
+            barPercentage: 0.7
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#14161e',
+                borderColor: '#1e2130',
+                borderWidth: 1,
+                titleFont: { family: 'Noto Sans KR' },
+                bodyFont: { family: 'JetBrains Mono', size: 12 },
+                callbacks: {
+                    title: function(items) { return zoneTop20[items[0].dataIndex].zone_name; },
+                    afterLabel: function(ctx) {
+                        const z = zoneTop20[ctx.dataIndex];
+                        return `Zone ID: ${z.zone_id} | ${z.region1} | 배포: ${z.dp_cars}대`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: '#1e2130' },
+                ticks: { color: '#8b8fa3', font: { family: 'JetBrains Mono', size: 11 }, callback: v => v+'%' },
+                min: 0, max: 80
+            },
+            y: {
+                grid: { display: false },
+                ticks: { color: '#e2e4ea', font: { family: 'Noto Sans KR', size: 11 } }
+            }
+        }
+    }
+});
 
 // === REGION CHART ===
 const regionAgg = {};
