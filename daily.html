@@ -3,759 +3,344 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>쿠폰 디비전별 일일 실적 모니터링</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>W13 쿠폰 디비전별 일일 실적</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg: #0c0e14;
-  --bg-card: #151821;
-  --bg-card-hover: #1a1e2a;
-  --bg-table-head: #1a1e2a;
-  --bg-table-row: #12151d;
-  --bg-table-row-alt: #151821;
-  --border: #252a38;
-  --text: #e4e6ed;
-  --text-dim: #8890a4;
-  --text-muted: #5a6178;
-  --accent: #6c8cff;
-  --green: #34d399;
-  --green-dim: #065f46;
-  --red: #f87171;
-  --red-dim: #7f1d1d;
-  --yellow: #fbbf24;
-  --yellow-dim: #78350f;
-  --profit-line: #a78bfa;
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0c0e14;--card:#14161e;--border:#1e2130;
+  --text:#e2e4ed;--text2:#8b8fa3;--text3:#565972;
+  --red:#ff4d6a;--yellow:#ffb84d;--green:#34d399;--blue:#5b8cff;
+  --purple:#a78bfa;--cyan:#22d3ee;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif;
-  line-height: 1.6;
-  padding: 32px 48px;
-  min-width: 1280px;
-}
-.mono { font-family: 'JetBrains Mono', monospace; }
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;padding:24px 32px 48px;line-height:1.6}
+.mono{font-family:'JetBrains Mono',monospace}
+h1{font-size:24px;font-weight:700;color:#fff;margin-bottom:4px}
+.subtitle{font-size:13px;color:var(--text2);margin-bottom:32px;font-weight:400}
 
-/* Header */
-.header { text-align: center; margin-bottom: 40px; }
-.header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
-.header .subtitle { font-size: 14px; color: var(--text-dim); font-weight: 400; }
-.header .date-badge {
-  display: inline-block;
-  margin-top: 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 18px;
-  font-size: 13px;
-  color: var(--text-dim);
-}
-.header .date-badge span { color: var(--accent); font-weight: 600; }
-
-/* Section */
-.section { margin-bottom: 48px; }
-.section-title {
-  font-size: 18px; font-weight: 600;
-  margin-bottom: 20px;
-  padding-left: 14px;
-  border-left: 3px solid var(--accent);
-  display: flex; align-items: center; gap: 10px;
-}
-.section-title .badge {
-  font-size: 11px;
-  background: rgba(108,140,255,0.15);
-  color: var(--accent);
-  padding: 2px 10px;
-  border-radius: 4px;
-  font-weight: 500;
-}
+/* KPI Cards */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px}
+.kpi-label{font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:500}
+.kpi-value{font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.kpi-sub{font-size:12px;color:var(--text3);margin-top:4px}
+.kpi-value.negative{color:var(--red)}
+.kpi-value.positive{color:var(--green)}
+.kpi-value.warn{color:var(--yellow)}
+.kpi-value.blue{color:var(--blue)}
 
 /* Chart */
-.chart-container {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 28px;
-  position: relative;
-}
-.chart-container canvas { width: 100% !important; height: 320px !important; }
+.chart-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:32px}
+.chart-section h2{font-size:15px;font-weight:600;margin-bottom:16px;color:#fff}
+.chart-wrap{position:relative;height:320px}
 
 /* Table */
-.table-wrap {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead th {
-  background: var(--bg-table-head);
-  padding: 12px 10px;
-  text-align: right;
-  font-weight: 600;
-  font-size: 12px;
-  color: var(--text-dim);
-  white-space: nowrap;
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 2;
-}
-thead th:first-child { text-align: left; padding-left: 18px; }
-tbody tr { transition: background 0.15s; }
-tbody tr:hover { background: var(--bg-card-hover); }
-tbody td {
-  padding: 10px 10px;
-  text-align: right;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12.5px;
-  border-bottom: 1px solid rgba(37,42,56,0.5);
-  white-space: nowrap;
-}
-tbody td:first-child {
-  text-align: left;
-  font-family: 'Noto Sans KR', sans-serif;
-  font-weight: 500;
-  padding-left: 18px;
-  font-size: 13px;
-}
-tbody tr:nth-child(even) { background: var(--bg-table-row-alt); }
-tbody tr:nth-child(odd) { background: var(--bg-table-row); }
-tbody tr:hover { background: var(--bg-card-hover) !important; }
-tbody tr.total-row {
-  background: rgba(108,140,255,0.08) !important;
-  font-weight: 700;
-  border-top: 2px solid var(--accent);
-}
-tbody tr.total-row td { font-weight: 700; font-size: 13px; }
+.table-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:32px;overflow-x:auto}
+.table-section h2{font-size:15px;font-weight:600;margin-bottom:16px;color:#fff}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:#1a1c28;color:var(--text2);font-weight:600;padding:10px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0}
+thead th:first-child{text-align:left}
+tbody td{padding:9px 12px;text-align:right;border-bottom:1px solid #1a1c28;font-family:'JetBrains Mono',monospace;font-size:12px;white-space:nowrap}
+tbody td:first-child{font-family:'Noto Sans KR',sans-serif;text-align:left;font-weight:500}
+tbody tr:hover{background:#1a1c2c}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600}
+.badge-red{background:rgba(255,77,106,.15);color:var(--red)}
+.badge-yellow{background:rgba(255,184,77,.15);color:var(--yellow)}
+.badge-green{background:rgba(52,211,153,.15);color:var(--green)}
 
-.pos { color: var(--green); }
-.neg { color: var(--red); }
-.gpm-good { color: var(--green); }
-.gpm-bad { color: var(--red); }
-.gpm-warn { color: var(--yellow); }
+/* Issue / Achiever cards */
+.cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:32px}
+.card-group h2{font-size:15px;font-weight:600;margin-bottom:12px;color:#fff}
+.issue-card,.achieve-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:10px}
+.issue-card{border-left:3px solid var(--red)}
+.achieve-card{border-left:3px solid var(--green)}
+.card-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.card-title .emoji{margin-right:6px}
+.card-desc{font-size:12px;color:var(--text2);line-height:1.7}
+.card-desc strong{color:var(--text);font-weight:600}
 
-/* Cards */
-.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 22px 24px;
-  border-top: 3px solid var(--border);
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
-.card.issue { border-top-color: var(--red); }
-.card.good { border-top-color: var(--green); }
-.card .card-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 10px;
-}
-.card .card-title { font-size: 15px; font-weight: 600; }
-.card .card-gpm {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px; font-weight: 600;
-  padding: 2px 10px; border-radius: 6px;
-}
-.card.issue .card-gpm { background: var(--red-dim); color: var(--red); }
-.card.good .card-gpm { background: var(--green-dim); color: var(--green); }
-.card .card-body { font-size: 13px; color: var(--text-dim); line-height: 1.8; }
-.card .card-body strong { color: var(--text); font-weight: 500; }
-.card .card-action {
-  margin-top: 12px;
-  font-size: 12px;
-  padding: 6px 14px;
-  border-radius: 6px;
-  display: inline-block;
-}
-.card.issue .card-action { background: rgba(248,113,113,0.1); color: var(--red); }
-.card.good .card-action { background: rgba(52,211,153,0.1); color: var(--green); }
+/* Bottom tables */
+.bottom-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:32px}
+.bottom-grid .table-section{margin-bottom:0}
+.profit-neg{color:var(--red)}
 
 /* Footer */
-.footer {
-  text-align: center;
-  margin-top: 48px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
-  font-size: 12px;
-  color: var(--text-muted);
-}
+.footer{text-align:center;color:var(--text3);font-size:12px;padding-top:24px;border-top:1px solid var(--border)}
+
+/* Section label */
+.section-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600}
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="header">
-  <h1>쿠폰 디비전별 일일 실적 모니터링</h1>
-  <div class="subtitle">반납기준 | 단위: 백만원 | YoY&middot;WoW(동요일) 비교</div>
-  <div class="date-badge">데이터 기준일: <span>2026-03-30 (월) | 반납 기준 ~3/29</span></div>
+<h1>W13 쿠폰 디비전별 일일 실적</h1>
+<p class="subtitle">반납 기준 2026.03.23 ~ 2026.03.29 | 기준일: 2026.03.30 | 단위: 백만원 | GPM 목표 25%</p>
+
+<!-- Section 1: KPI Cards -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- Section 2: Daily Revenue Chart -->
+<div class="chart-section">
+  <p class="section-label">SECTION 2</p>
+  <h2>일별 매출 추이 (전 디비전 합산)</h2>
+  <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
 </div>
 
-<!-- Section 1: Daily Total KPI -->
-<div class="section">
-  <div class="section-title">W13 쿠폰 디비전별 실적 (3/23~3/29) <span class="badge">최근 7일</span></div>
-  <div class="chart-container">
-    <canvas id="kpiChart"></canvas>
+<!-- Section 3: Division Daily Table -->
+<div class="table-section">
+  <p class="section-label">SECTION 3</p>
+  <h2>디비전별 일일 매출 (GPM 오름차순)</h2>
+  <table id="divTable">
+    <thead>
+      <tr>
+        <th>유형</th><th>3/23</th><th>3/24</th><th>3/25</th><th>3/26</th><th>3/27</th><th>3/28</th><th>3/29</th><th>W13합계</th><th>GPM</th><th>CM%</th><th>판정</th>
+      </tr>
+    </thead>
+    <tbody id="divBody"></tbody>
+  </table>
+</div>
+
+<!-- Section 4: Issue & Achiever Cards -->
+<div class="cards-grid">
+  <div class="card-group">
+    <p class="section-label">SECTION 4-A</p>
+    <h2 style="color:var(--red)">GPM 미달 (목표 25% 미만)</h2>
+    <div class="issue-card">
+      <div class="card-title"><span class="emoji">🔴</span>퇴출근9900 &mdash; GPM -83%</div>
+      <div class="card-desc">주중 ~2,000건/일, <strong>일 -33M 적자</strong> 지속. 주말(3/29) 309건으로 축소되나 구조적 적자. 즉시 구조개선 필요.</div>
+    </div>
+    <div class="issue-card">
+      <div class="card-title"><span class="emoji">🔴</span>수요대응 &mdash; GPM -26%</div>
+      <div class="card-desc">땡처리 과도 할인이 주 원인. <strong>할인율 조정</strong> 또는 대상 차종 재검토 권장.</div>
+    </div>
+    <div class="issue-card">
+      <div class="card-title"><span class="emoji">🔴</span>당일최저가 &mdash; GPM -22%</div>
+      <div class="card-desc">얼리버드(GPM 36%)로 <strong>대체 전환 권장</strong>. 동일 수요 대비 수익성 현저히 열위.</div>
+    </div>
+    <div class="issue-card">
+      <div class="card-title"><span class="emoji">🟡</span>첫사용/윈백 &mdash; GPM 18%</div>
+      <div class="card-desc">목표 미달이나 <strong>매출 803M으로 W13 최대</strong>. 볼륨 감안 시 단가·할인율 미세 조정으로 목표 도달 가능.</div>
+    </div>
+  </div>
+  <div class="card-group">
+    <p class="section-label">SECTION 4-B</p>
+    <h2 style="color:var(--green)">GPM 달성 (목표 25% 이상)</h2>
+    <div class="achieve-card">
+      <div class="card-title"><span class="emoji">🟢</span>얼리버드 &mdash; GPM 36%</div>
+      <div class="card-desc">3/29(일) <strong>66.7M 역대 최고 매출</strong> 기록. 주말 수요 흡수력 입증. 확대 운영 권장.</div>
+    </div>
+    <div class="achieve-card">
+      <div class="card-title"><span class="emoji">🟢</span>특가존 &mdash; GPM 29%</div>
+      <div class="card-desc">주말 피크 <strong>54~66M</strong> 달성. 주중 대비 주말 매출 3배 이상 성장.</div>
+    </div>
+    <div class="achieve-card">
+      <div class="card-title"><span class="emoji">🟢</span>가격제 &mdash; GPM 27%</div>
+      <div class="card-desc"><strong>주력 매출 1,900M</strong>. 안정적 수익 구조 유지. 전체 매출의 핵심 축.</div>
+    </div>
+    <div class="achieve-card">
+      <div class="card-title"><span class="emoji">🟡</span>B2B &mdash; GPM 22%</div>
+      <div class="card-desc"><strong>목표 근접</strong>. 주중 피크(3/26: 65.1M) 확인. 단가 미세 조정으로 25% 달성 가능.</div>
+    </div>
   </div>
 </div>
 
-<!-- Section 2: Group-level Table -->
-<div class="section">
-  <div class="section-title">디비전별 일일 실적 <span class="badge">반납기준 매출</span></div>
-  <div class="table-wrap">
-    <table id="mainTable">
-      <thead>
-        <tr>
-          <th style="min-width:110px">유형</th>
-          <th>3/23<br><span style="font-weight:400;color:#5a6178">월</span></th>
-          <th>3/24<br><span style="font-weight:400;color:#5a6178">화</span></th>
-          <th>3/25<br><span style="font-weight:400;color:#5a6178">수</span></th>
-          <th>3/26<br><span style="font-weight:400;color:#5a6178">목</span></th>
-          <th>3/27<br><span style="font-weight:400;color:#5a6178">금</span></th>
-          <th>3/28<br><span style="font-weight:400;color:#5a6178">토</span></th>
-          <th>3/29<br><span style="font-weight:400;color:#5a6178">일</span></th>
-          <th>WoW<br><span style="font-weight:400;color:#5a6178">vs 3/22</span></th>
-          <th>YoY<br><span style="font-weight:400;color:#5a6178">vs '25</span></th>
-          <th>7일<br>평균</th>
-          <th>매출<br><span style="font-weight:400;color:#5a6178">3/29</span></th>
-          <th>CM%<br><span style="font-weight:400;color:#5a6178">3/29</span></th>
-          <th>GPM<br><span style="font-weight:400;color:#5a6178">목표25%</span></th>
-          <th>건수<br><span style="font-weight:400;color:#5a6178">3/29</span></th>
-          <th style="text-align:center">판정</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
+<!-- Section 5: Bottom rank tables -->
+<div class="bottom-grid">
+  <div class="table-section">
+    <p class="section-label">SECTION 5-A</p>
+    <h2>건당매출 하위 Top 10 (3/29 기준)</h2>
+    <table>
+      <thead><tr><th>쿠폰명</th><th>건수</th><th>건당매출</th><th>GPM</th><th>Profit</th></tr></thead>
+      <tbody id="perTripBody"></tbody>
+    </table>
+  </div>
+  <div class="table-section">
+    <p class="section-label">SECTION 5-B</p>
+    <h2>시간당매출 하위 Top 10 (3/29 기준)</h2>
+    <table>
+      <thead><tr><th>쿠폰명</th><th>건수</th><th>원/h</th><th>평균시간</th><th>Profit</th></tr></thead>
+      <tbody id="perHourBody"></tbody>
     </table>
   </div>
 </div>
 
-<!-- Section 3: GPM 목표 25% 미달 — 3관점 진단 -->
-<div class="section">
-  <div class="section-title">GPM 목표(25%) 미달 디비전 <span class="badge" style="background:rgba(248,113,113,0.15);color:var(--red)">적자/미달</span></div>
-  <div class="card-grid">
-    <div class="card issue">
-      <div class="card-header">
-        <div class="card-title">퇴출근쿠폰 9,900원 (#16243)</div>
-        <div class="card-gpm">GPM -121%</div>
-      </div>
-      <div class="card-body">
-        <strong style="color:var(--red)">매출 5.0M | CM% 17.9% | Profit -6.1M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 일요일 309건/5.0M. 주말 대폭 하락 (평일 ~40M → 일요일 5M)<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 17.9%로 변동비조차 간신히 커버. 차량 원가 미반영<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> <strong style="color:var(--red)">주간 GPM -83.4%. 일 평균 ~-32M 적자</strong><br>
-        <span style="color:#fbbf24">일요일 309건으로 급감하나 평일 적자 규모가 여전히 큼</span>
-      </div>
-      <div class="card-action">Action: 이용시간 8h 상한 / 주말 OFF / 단가 상향 (9,900→19,900원)</div>
-    </div>
-    <div class="card issue">
-      <div class="card-header">
-        <div class="card-title">심야쿠폰 (패스포트 심야 등)</div>
-        <div class="card-gpm">GPM -48.1%</div>
-      </div>
-      <div class="card-body">
-        <strong style="color:var(--red)">매출 0.8M | CM% 32.7% | Profit -0.8M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 일요일 0.8M으로 소규모 (평일 8~10M)<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 32.7%로 퇴출근(17.9%)보다 양호하나 여전히 적자<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> 주간 GPM -48.1% 적자. 패스포트 심야 9,000원/18,900원이 원인
-      </div>
-      <div class="card-action">Action: 심야 단가 상향 (9,000→15,000원)</div>
-    </div>
-    <div class="card issue">
-      <div class="card-header">
-        <div class="card-title">당일최저가</div>
-        <div class="card-gpm">GPM -14%</div>
-      </div>
-      <div class="card-body">
-        <strong style="color:var(--red)">매출 16.5M | CM% 49.0% | Profit -2.4M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 주말 피크 (금 17.9M, 토 23.4M, 일 16.5M)<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 49.0%로 변동비는 커버<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> 고정비 반영 시 적자. 얼리버드(35.7%) 대비 열위
-      </div>
-      <div class="card-action">Action: 얼리버드로 대체 확대. 당일최저가 축소</div>
-    </div>
-    <div class="card issue">
-      <div class="card-header">
-        <div class="card-title">수요대응 (땡처리)</div>
-        <div class="card-gpm">GPM -45%</div>
-      </div>
-      <div class="card-body">
-        <strong style="color:var(--red)">매출 23.7M | CM% 48.4% | Profit -10.6M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 주말 급증 (토 21.3M, 일 23.7M). 유휴차량 소진 목적<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 48.4% — 변동비 커버는 하나 여유 없음<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> 주간 GPM -24.2%. 저가 땡처리가 적자 원인
-      </div>
-      <div class="card-action">Action: 최소 단가 79,900원으로 상향. 저가 땡처리 폐지</div>
-    </div>
-    <div class="card" style="border-top-color:var(--yellow)">
-      <div class="card-header">
-        <div class="card-title">첫사용/윈백</div>
-        <div class="card-gpm" style="background:var(--yellow-dim);color:var(--yellow)">GPM 17.9%</div>
-      </div>
-      <div class="card-body">
-        <strong style="color:var(--yellow)">매출 158.8M | CM% 58.8% | Profit 28.4M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 일요일 158.8M으로 주말 피크. 주간 최대 규모<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 58.8%로 양호<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> GPM 17.9%로 목표(25%) 미달 -7.1%p. 흑자이나 개선 필요
-      </div>
-      <div class="card-action">Action: 할인율 조정 검토 (29,900원→34,900원 등)</div>
-    </div>
-    <div class="card" style="border-top-color:var(--yellow)">
-      <div class="card-header">
-        <div class="card-title">패스포트</div>
-        <div class="card-gpm" style="background:var(--yellow-dim);color:var(--yellow)">GPM 20.0%</div>
-      </div>
-      <div class="card-body">
-        <strong style="color:var(--yellow)">매출 21.7M | CM% 59.7% | Profit 4.3M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 일요일 21.7M으로 주중(34~40M) 대비 축소<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 59.7% 양호<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> GPM 20.0% 목표 미달. 구독 구조 안정화 필요
-      </div>
-      <div class="card-action">Action: 구독 구조 안정화 모니터링</div>
-    </div>
-  </div>
-</div>
-
-<!-- Section 4: GPM 25% 달성 디비전 -->
-<div class="section">
-  <div class="section-title">GPM 목표(25%) 달성 디비전 <span class="badge" style="background:rgba(52,211,153,0.15);color:var(--green)">달성</span></div>
-  <div class="card-grid">
-    <div class="card good">
-      <div class="card-header">
-        <div class="card-title">얼리버드</div>
-        <div class="card-gpm">GPM +35.7%</div>
-      </div>
-      <div class="card-body">
-        <strong style="color:var(--green)">매출 66.7M | CM% 68.5% | Profit 24.3M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 일요일 342건/66.7M으로 주말 피크. 주중 8~14M 대비 급증<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 68.5%로 전체 최고<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> GPM 35.7%로 목표 +10.7%p 초과. 가장 건전
-      </div>
-      <div class="card-action">Action: 적극 물량 확대. 당일최저가 대체 상품으로 육성</div>
-    </div>
-    <div class="card good">
-      <div class="card-header">
-        <div class="card-title">특가존</div>
-        <div class="card-gpm">GPM +30%</div>
-      </div>
-      <div class="card-body">
-        <strong style="color:var(--green)">매출 66.0M | CM% 64.4% | Profit 19.7M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 주말 피크 뚜렷 (토 54.0M, 일 66.0M)<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 64.4%로 안정<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> GPM 28.6%로 목표 +3.6%p 초과
-      </div>
-      <div class="card-action">Action: 현 운영 유지</div>
-    </div>
-    <div class="card good">
-      <div class="card-header">
-        <div class="card-title">가격제 (주력)</div>
-        <div class="card-gpm">GPM +28.4%</div>
-      </div>
-      <div class="card-body">
-        <strong style="color:var(--green)">매출 321.0M | CM% 65.4% | Profit 91.2M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 일요일 321.0M. 주간 평균 271M으로 최대 규모<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 65.4%로 양호<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> GPM 27.1%로 목표 +2.1%p 달성. 전체 이익의 핵심
-      </div>
-      <div class="card-action">Action: 유지. 4시간미만(GPM 저조) 구간만 모니터링</div>
-    </div>
-    <div class="card good">
-      <div class="card-header">
-        <div class="card-title">B2B</div>
-        <div class="card-gpm">GPM +22%</div>
-      </div>
-      <div class="card-body">
-        <strong style="color:var(--green)">매출 30.2M | CM% 63.2% | Profit 6.7M</strong><br>
-        <span style="color:var(--text-dim)">매출 관점:</span> 일요일 30.2M. 주간 변동 큼 (25.6~65.1M)<br>
-        <span style="color:var(--text-dim)">CM% 관점:</span> 63.2% 안정<br>
-        <span style="color:var(--text-dim)">손익 관점:</span> GPM 22.3%로 목표 근접 (-2.7%p)
-      </div>
-      <div class="card-action">Action: B2B 확대 지속</div>
-    </div>
-  </div>
-</div>
-
-<!-- Section 5: 건당매출·시간당매출 하위 쿠폰 -->
-<div class="section">
-  <div class="section-title">건당매출 · 시간당매출 하위 쿠폰 <span class="badge" style="background:rgba(248,113,113,0.15);color:var(--red)">단가 문제</span> <span style="font-size:11px;color:var(--text-muted);margin-left:8px">3/29 반납기준, 20건 이상</span></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-    <!-- 건당매출 하위 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;border-top:3px solid var(--red);">
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">건당매출 하위 Top 10</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">전체 평균 건당매출 6.3만원 | 목표 7.6만원</div>
-      <table style="width:100%;border-collapse:collapse;font-size:11px;">
-        <thead><tr style="border-bottom:1px solid var(--border);">
-          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:10px;">쿠폰</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건수</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건당매출</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">GPM</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">Profit</th>
-        </tr></thead>
-        <tbody>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red);font-weight:600">쏘팸 75%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">26</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red);font-weight:600">14,005</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-474%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-1.7M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">패스포트 심야 9,000원</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">35</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">16,287</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-118%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-0.7M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5);background:rgba(248,113,113,0.04)"><td style="padding:5px 8px;color:var(--red);font-weight:700">퇴출근 9,900원</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';font-weight:700">309</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red);font-weight:700">16,318</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-121%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red);font-weight:700">-6.1M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">제주 75% (공항존제외)</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">45</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">18,787</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-73%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-0.6M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">땡처리 19,900원 (BMW)</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">20</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">30,119</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-160%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-1.0M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">가격제 4시간미만 30%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">1,305</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--yellow)">31,624</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-19%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-7.9M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">당일최저가 22,900원</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">123</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--yellow)">35,088</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-29%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-1.2M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">당일최저가 34,900원</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">141</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--yellow)">50,628</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-8%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-0.6M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">특별전 29,900원 (BMW)</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">34</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--yellow)">52,784</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-143%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-2.6M</td></tr>
-          <tr><td style="padding:5px 8px;color:var(--yellow)">땡처리 29,900원 (아반떼N)</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">188</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--yellow)">53,731</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-36%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-3.7M</td></tr>
-        </tbody>
-      </table>
-      <div style="margin-top:12px;padding:10px 12px;background:rgba(248,113,113,0.06);border-radius:8px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-        3/29(일) 기준. 퇴출근은 주중전용으로 <strong>일요일 309건</strong>으로 급감.<br>
-        가격제 4시간미만(1,305건/-7.9M)이 일요일 최대 적자 쿠폰.
-      </div>
-    </div>
-    <!-- 시간당매출 하위 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;border-top:3px solid var(--red);">
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">시간당매출 하위 Top 10</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">차량 1시간 점유당 매출 효율 | 기회비용 관점</div>
-      <table style="width:100%;border-collapse:collapse;font-size:11px;">
-        <thead><tr style="border-bottom:1px solid var(--border);">
-          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:10px;">쿠폰</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건수</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">시간당매출</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">평균시간</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">Profit</th>
-        </tr></thead>
-        <tbody>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red);font-weight:600">쏘팸 75%</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">26</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red);font-weight:600">724</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">19.3h</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-1.7M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">패스포트 심야 9,000원</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">35</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">1,505</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">10.8h</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-0.7M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5);background:rgba(248,113,113,0.04)"><td style="padding:5px 8px;color:var(--red);font-weight:700">퇴출근 9,900원</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';font-weight:700">309</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red);font-weight:700">1,870</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';font-weight:600">8.7h</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red);font-weight:700">-6.1M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">땡처리 19,900원 (BMW)</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">20</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">1,874</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">16.1h</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-1.0M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">특별전 29,900원 (BMW)</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">34</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">2,413</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">21.9h</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-2.6M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">특별전 19,900원 (아반떼)</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">94</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--yellow)">2,833</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">21.1h</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-4.0M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">땡처리 29,900원 (아반떼)</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">188</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--yellow)">3,754</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">14.3h</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-3.7M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">당일최저가 22,900원</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">123</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--yellow)">5,617</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">6.2h</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-1.2M</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">당일최저가 34,900원</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">141</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--yellow)">5,571</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">9.1h</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-0.6M</td></tr>
-          <tr><td style="padding:5px 8px;color:var(--yellow)">제주 75% (공항존제외)</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">45</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--yellow)">5,693</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono'">3.3h</td><td style="text-align:right;padding:5px 4px;font-family:'JetBrains Mono';color:var(--red)">-0.6M</td></tr>
-        </tbody>
-      </table>
-      <div style="margin-top:12px;padding:10px 12px;background:rgba(248,113,113,0.06);border-radius:8px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-        3/29(일) 기준. 퇴출근 주중전용으로 309건/8.7h → 시간당 1,870원.<br>
-        수요대응(땡처리/특별전)이 시간당 1,874~3,754원으로 차량 효율 최하위.
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Section 6: WoW 건당매출·시간당매출 Gap -->
-<div class="section">
-  <div class="section-title">건당매출 · 시간당매출 WoW 변동 <span class="badge" style="background:rgba(108,140,255,0.15);color:var(--accent)">동요일 비교</span> <span style="font-size:11px;color:var(--text-muted);margin-left:8px">3/29(일) vs 3/22(일)</span></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-    <!-- 건당매출 WoW 하락 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;border-top:3px solid var(--red);">
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">건당매출 WoW 하락 Top</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">동요일 대비 건당매출이 떨어진 쿠폰</div>
-      <table style="width:100%;border-collapse:collapse;font-size:11px;">
-        <thead><tr style="border-bottom:1px solid var(--border);">
-          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:10px;">쿠폰</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건수</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건당매출</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">WoW Gap</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">GPM</th>
-        </tr></thead>
-        <tbody>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">4일이상 65%</td><td style="text-align:right;font-family:'JetBrains Mono'">67</td><td style="text-align:right;font-family:'JetBrains Mono'">396,757</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-40,766 (-9%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">37.5%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">미리예약 55%</td><td style="text-align:right;font-family:'JetBrains Mono'">47</td><td style="text-align:right;font-family:'JetBrains Mono'">143,143</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-19,693 (-12%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">36.7%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">2박3일 55%</td><td style="text-align:right;font-family:'JetBrains Mono'">169</td><td style="text-align:right;font-family:'JetBrains Mono'">166,510</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-8,660 (-5%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">32.8%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">쏘카클럽 56,000원</td><td style="text-align:right;font-family:'JetBrains Mono'">43</td><td style="text-align:right;font-family:'JetBrains Mono'">72,221</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-7,609 (-10%)</td><td style="text-align:right;font-family:'JetBrains Mono'">22.0%</td></tr>
-          <tr><td style="padding:5px 8px;color:var(--yellow)">양산시 55%</td><td style="text-align:right;font-family:'JetBrains Mono'">28</td><td style="text-align:right;font-family:'JetBrains Mono'">54,372</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-5,941 (-10%)</td><td style="text-align:right;font-family:'JetBrains Mono'">6.1%</td></tr>
-        </tbody>
-      </table>
-      <div style="margin-top:12px;padding:10px 12px;background:rgba(108,140,255,0.06);border-radius:8px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-        장기대여(4일+, 2박3일) 건당매출 하락 → 이용 기간 짧아지는 추세 모니터링 필요<br>
-        GPM은 양호(33~38%)하나 건당매출 하락이 지속되면 매출 총량 감소
-      </div>
-    </div>
-    <!-- 시간당매출 WoW 하락 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;border-top:3px solid var(--red);">
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">시간당매출 WoW 하락 Top</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">동요일 대비 시간 효율이 떨어진 쿠폰</div>
-      <table style="width:100%;border-collapse:collapse;font-size:11px;">
-        <thead><tr style="border-bottom:1px solid var(--border);">
-          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:10px;">쿠폰</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건수</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">시간당매출</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">WoW Gap</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">GPM</th>
-        </tr></thead>
-        <tbody>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red);font-weight:600">패스포트 심야 9,000원</td><td style="text-align:right;font-family:'JetBrains Mono'">253</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">1,949</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-113 (-6%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-69%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--red)">양산시 55%</td><td style="text-align:right;font-family:'JetBrains Mono'">28</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">6,428</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-1,309 (-17%)</td><td style="text-align:right;font-family:'JetBrains Mono'">6.1%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">58% 할인(24h+)</td><td style="text-align:right;font-family:'JetBrains Mono'">69</td><td style="text-align:right;font-family:'JetBrains Mono'">3,939</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-514 (-12%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">30.2%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">당일최저가 16,900원</td><td style="text-align:right;font-family:'JetBrains Mono'">77</td><td style="text-align:right;font-family:'JetBrains Mono'">4,397</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-472 (-10%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-40%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--yellow)">쏘카클럽 56,000원</td><td style="text-align:right;font-family:'JetBrains Mono'">43</td><td style="text-align:right;font-family:'JetBrains Mono'">4,092</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-475 (-10%)</td><td style="text-align:right;font-family:'JetBrains Mono'">22.0%</td></tr>
-          <tr><td style="padding:5px 8px;color:var(--yellow)">미리예약 55%</td><td style="text-align:right;font-family:'JetBrains Mono'">47</td><td style="text-align:right;font-family:'JetBrains Mono'">4,113</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-387 (-9%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">36.7%</td></tr>
-        </tbody>
-      </table>
-      <div style="margin-top:12px;padding:10px 12px;background:rgba(108,140,255,0.06);border-radius:8px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-        시간당 매출 하락은 이용시간 증가(장시간) 또는 단가 하락 의미<br>
-        패스포트 심야(1,949원/h)는 이미 최하위권 — 추가 하락 시 적자 확대
-      </div>
-    </div>
-  </div>
-  <!-- WoW 상승 (양호) -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;border-top:3px solid var(--green);">
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">건당매출 WoW 상승 Top</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">동요일 대비 건당매출이 개선된 쿠폰</div>
-      <table style="width:100%;border-collapse:collapse;font-size:11px;">
-        <thead><tr style="border-bottom:1px solid var(--border);">
-          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:10px;">쿠폰</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건수</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건당매출</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">WoW Gap</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">GPM</th>
-        </tr></thead>
-        <tbody>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">감사쿠폰 2일55%</td><td style="text-align:right;font-family:'JetBrains Mono'">114</td><td style="text-align:right;font-family:'JetBrains Mono'">150,369</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+16,717 (+13%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">36.7%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">비즈니스 기본 45%</td><td style="text-align:right;font-family:'JetBrains Mono'">101</td><td style="text-align:right;font-family:'JetBrains Mono'">93,513</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+13,473 (+17%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">40.7%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">58% 할인(24h+)</td><td style="text-align:right;font-family:'JetBrains Mono'">69</td><td style="text-align:right;font-family:'JetBrains Mono'">118,307</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+13,558 (+13%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">30.2%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">특가존 60%</td><td style="text-align:right;font-family:'JetBrains Mono'">229</td><td style="text-align:right;font-family:'JetBrains Mono'">97,444</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+10,617 (+12%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">32.3%</td></tr>
-          <tr><td style="padding:5px 8px;color:var(--green)">업무할인 주중60%</td><td style="text-align:right;font-family:'JetBrains Mono'">416</td><td style="text-align:right;font-family:'JetBrains Mono'">99,063</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+10,349 (+12%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">33.0%</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;border-top:3px solid var(--green);">
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">시간당매출 WoW 상승 Top</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">동요일 대비 시간 효율이 개선된 쿠폰</div>
-      <table style="width:100%;border-collapse:collapse;font-size:11px;">
-        <thead><tr style="border-bottom:1px solid var(--border);">
-          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:10px;">쿠폰</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">건수</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">시간당매출</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">WoW Gap</th>
-          <th style="text-align:right;padding:6px 4px;color:var(--text-muted);font-size:10px;">GPM</th>
-        </tr></thead>
-        <tbody>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">패스포트 50%(4h+)</td><td style="text-align:right;font-family:'JetBrains Mono'">105</td><td style="text-align:right;font-family:'JetBrains Mono'">8,998</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+1,576 (+21%)</td><td style="text-align:right;font-family:'JetBrains Mono'">23.0%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">4시간미만 30%</td><td style="text-align:right;font-family:'JetBrains Mono'">811</td><td style="text-align:right;font-family:'JetBrains Mono'">15,391</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+859 (+6%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-3.2%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">당일최저가 25,900원</td><td style="text-align:right;font-family:'JetBrains Mono'">93</td><td style="text-align:right;font-family:'JetBrains Mono'">5,213</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+816 (+19%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-6.0%</td></tr>
-          <tr style="border-bottom:1px solid rgba(37,42,56,0.5)"><td style="padding:5px 8px;color:var(--green)">주중심야 12,900원</td><td style="text-align:right;font-family:'JetBrains Mono'">384</td><td style="text-align:right;font-family:'JetBrains Mono'">6,517</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+780 (+14%)</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--red)">-49.8%</td></tr>
-          <tr><td style="padding:5px 8px;color:var(--green)">패스포트 50%(편도)</td><td style="text-align:right;font-family:'JetBrains Mono'">439</td><td style="text-align:right;font-family:'JetBrains Mono'">8,566</td><td style="text-align:right;font-family:'JetBrains Mono';color:var(--green)">+539 (+7%)</td><td style="text-align:right;font-family:'JetBrains Mono'">23.0%</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<div class="footer">
-  쿠폰 실적 모니터링 대시보드 &middot; 데이터 갱신: 2026-03-30 &middot; 쏘카 프라이싱셀
-</div>
+<div class="footer">W13 쿠폰 실적 대시보드 | 반납 기준 ~3/29 | 2026.03.30 | 쏘카 프라이싱셀</div>
 
 <script>
 // === DATA ===
-// GPM 심각한 순 (ASC) — GPM 목표: 25%
-const groups = [
-  { name:'쏘카플랜',   rev:[0.0,0.1,0.1,0.1,0.1,0.1,0.1],  cm_pct:-73.0, gpm:-511.0, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:0.1, cm25:-0.1, pft25:-0.5, cnt25:3 },
-  { name:'퇴출근9900', rev:[33.2,40.3,41.6,40.3,37.9,0,5.0], cm_pct:17.9, gpm:-83.4, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:5.0, cm25:0.9, pft25:-6.1, cnt25:309 },
-  { name:'심야(기타)', rev:[8.0,8.8,9.1,10.0,7.9,0,0.8], cm_pct:32.7, gpm:-48.1, wow:null, wowPrev:null, yoy:null, yoyNote:'패스포트심야', rev25:0.8, cm25:0.3, pft25:-0.8, cnt25:0 },
-  { name:'당일최저가', rev:[8.1,5.9,6.6,7.7,17.9,23.4,16.5],   cm_pct:49.0, gpm:-22.0, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:16.5, cm25:8.1, pft25:-2.4, cnt25:0 },
-  { name:'수요대응',   rev:[14.3,10.0,10.3,13.0,13.5,21.3,23.7], cm_pct:48.4, gpm:-24.2, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:23.7, cm25:11.5, pft25:-10.6, cnt25:0 },
-  { name:'기타',       rev:[5.7,5.8,3.8,3.4,5.0,6.5,9.4],       cm_pct:53.3, gpm:-10.5, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:9.4, cm25:5.0, pft25:-1.0, cnt25:0 },
-  { name:'STF',       rev:[1.7,2.6,1.3,1.7,1.0,1.7,2.7],       cm_pct:59.6, gpm:3.5, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:2.7, cm25:1.6, pft25:0.1, cnt25:0 },
-  { name:'프로모션',   rev:[2.2,1.8,1.3,1.4,1.3,3.2,3.9],       cm_pct:53.8, gpm:-14.3, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:3.9, cm25:2.1, pft25:-0.6, cnt25:0 },
-  { name:'편도',       rev:[1.3,1.2,1.6,1.1,1.6,1.3,1.5],       cm_pct:48.6, gpm:14.0, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:1.5, cm25:0.7, pft25:0.2, cnt25:0 },
-  { name:'첫사용/윈백', rev:[100.1,98.5,98.6,109.3,116.0,122.5,158.8], cm_pct:58.8, gpm:17.9, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:158.8, cm25:93.4, pft25:28.4, cnt25:0 },
-  { name:'전기차',     rev:[14.6,11.5,11.2,15.9,9.3,11.9,46.9], cm_pct:64.1, gpm:21.1, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:46.9, cm25:30.1, pft25:9.9, cnt25:0 },
-  { name:'패스포트',   rev:[40.4,34.1,37.1,38.3,36.6,38.9,21.7], cm_pct:59.7, gpm:20.0, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:21.7, cm25:13.0, pft25:4.3, cnt25:0 },
-  { name:'B2B',       rev:[25.6,39.5,51.5,65.1,58.6,31.4,30.2], cm_pct:63.2, gpm:22.3, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:30.2, cm25:19.1, pft25:6.7, cnt25:0 },
-  { name:'가격제',     rev:[251.5,227.2,246.5,258.6,324.8,270.5,321.0], cm_pct:65.4, gpm:27.1, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:321.0, cm25:209.9, pft25:91.2, cnt25:0 },
-  { name:'특가존',     rev:[26.3,21.3,19.1,21.8,25.1,54.0,66.0], cm_pct:64.4, gpm:28.6, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:66.0, cm25:42.5, pft25:19.7, cnt25:0 },
-  { name:'얼리버드',   rev:[13.2,7.9,8.0,8.7,14.2,20.4,66.7],     cm_pct:68.5, gpm:35.7, wow:null, wowPrev:null, yoy:null, yoyNote:'신규', rev25:66.7, cm25:45.7, pft25:24.3, cnt25:342 },
+const divisions = [
+  {name:'쏘카플랜', daily:[0.0,0.1,0.1,0.1,0.1,0.1,0.1], gpm:-553, cm:-135},
+  {name:'퇴출근9900', daily:[33.2,40.3,41.6,40.3,37.9,0,5.0], gpm:-83, cm:18},
+  {name:'심야(기타)', daily:[8.0,8.8,9.1,10.0,7.9,0,0.8], gpm:-48, cm:33},
+  {name:'당일최저가', daily:[8.1,5.9,6.6,7.7,17.9,23.4,16.5], gpm:-22, cm:49},
+  {name:'수요대응', daily:[14.3,10.0,10.3,13.0,13.5,21.3,23.7], gpm:-26, cm:48},
+  {name:'기타', daily:[5.7,5.8,3.8,3.4,5.0,6.5,9.4], gpm:-11, cm:53},
+  {name:'STF', daily:[1.7,2.6,1.3,1.7,1.0,1.7,2.7], gpm:5, cm:60},
+  {name:'프로모션', daily:[2.2,1.8,1.3,1.4,1.3,3.2,3.9], gpm:-14, cm:54},
+  {name:'편도', daily:[1.3,1.2,1.6,1.1,1.6,1.3,1.5], gpm:14, cm:49},
+  {name:'전기차', daily:[14.6,11.5,11.2,15.9,9.3,11.9,46.9], gpm:21, cm:64},
+  {name:'첫사용/윈백', daily:[100.1,98.5,98.6,109.3,116.0,122.5,158.8], gpm:18, cm:59},
+  {name:'패스포트', daily:[40.4,34.1,37.1,38.3,36.6,38.9,21.7], gpm:20, cm:60},
+  {name:'B2B', daily:[25.6,39.5,51.5,65.1,58.6,31.4,30.2], gpm:22, cm:63},
+  {name:'가격제', daily:[251.5,227.2,246.5,258.6,324.8,270.5,321.0], gpm:27, cm:66},
+  {name:'특가존', daily:[26.3,21.3,19.1,21.8,25.1,54.0,66.0], gpm:29, cm:64},
+  {name:'얼리버드', daily:[13.2,7.9,8.0,8.7,14.2,20.4,66.7], gpm:36, cm:69},
 ];
 
-const dates = ['3/23','3/24','3/25','3/26','3/27','3/28','3/29'];
+// Sort by GPM ascending (worst first)
+divisions.sort((a,b) => a.gpm - b.gpm);
 
-// Compute daily totals
-const dailyTotals = dates.map((_,i) => {
-  return groups.reduce((s,g) => s + g.rev[i], 0);
+const dayLabels = ['3/23(월)','3/24(화)','3/25(수)','3/26(목)','3/27(금)','3/28(토)','3/29(일)'];
+
+// Compute totals
+const dailyTotals = [0,0,0,0,0,0,0];
+let totalRevenue = 0;
+divisions.forEach(d => {
+  d.sum = d.daily.reduce((a,b)=>a+b,0);
+  totalRevenue += d.sum;
+  d.daily.forEach((v,i) => dailyTotals[i] += v);
 });
 
-// Approximate daily profit using weighted GPM
-const dailyProfit = dates.map((_,i) => {
-  return groups.reduce((s,g) => s + g.rev[i] * g.gpm / 100, 0);
+// Weighted GPM & CM
+let weightedGPM = 0, weightedCM = 0;
+divisions.forEach(d => {
+  weightedGPM += d.gpm * d.sum;
+  weightedCM += d.cm * d.sum;
+});
+const avgGPM = Math.round(weightedGPM / totalRevenue);
+const avgCM = Math.round(weightedCM / totalRevenue);
+
+// === Section 1: KPI Cards ===
+const kpiData = [
+  {label:'W13 총 매출', value: totalRevenue.toFixed(1)+'M', cls:'blue', sub:'16개 디비전 합산'},
+  {label:'평균 GPM (가중)', value: avgGPM+'%', cls: avgGPM>=25?'positive':'warn', sub:'목표 25%'},
+  {label:'평균 CM% (가중)', value: avgCM+'%', cls:'positive', sub:'가중평균'},
+  {label:'GPM 달성 디비전', value: divisions.filter(d=>d.gpm>=25).length+' / '+divisions.length, cls:'positive', sub:'25% 이상 달성'},
+];
+const kpiRow = document.getElementById('kpiRow');
+kpiData.forEach(k => {
+  kpiRow.innerHTML += '<div class="kpi-card"><div class="kpi-label">'+k.label+'</div><div class="kpi-value '+k.cls+'">'+k.value+'</div><div class="kpi-sub">'+k.sub+'</div></div>';
 });
 
-// 14-day average (approx: use 7-day data * ~factor for illustration; we'll use the 7-day avg as proxy)
-groups.forEach(g => {
-  const avg7 = g.rev.reduce((a,b) => a+b, 0) / 7;
-  g.avg14 = avg7; // proxy
-});
-
-// Status logic — GPM 목표 25%
-function getStatus(gpm, wow) {
-  if (gpm < 0) return '\uD83D\uDD34';       // 적자
-  if (gpm < 25) return '\uD83D\uDFE1';      // 목표 미달
-  return '\uD83D\uDFE2';                     // 목표 달성
-}
-
-// Format number
-function fmt(n, dec=1) {
-  if (n === null || n === undefined) return '-';
-  return n.toFixed(dec);
-}
-
-function fmtPct(n) {
-  if (n === null || n === undefined) return '-';
-  const sign = n > 0 ? '+' : '';
-  const cls = n > 0 ? 'pos' : n < 0 ? 'neg' : '';
-  return `<span class="${cls}">${sign}${n.toFixed(1)}%</span>`;
-}
-
-function fmtGpm(n) {
-  const cls = n >= 20 ? 'gpm-good' : n >= 0 ? 'gpm-warn' : 'gpm-bad';
-  const sign = n > 0 ? '+' : '';
-  return `<span class="${cls}">${sign}${n.toFixed(1)}%</span>`;
-}
-
-// Build table
-const tbody = document.querySelector('#mainTable tbody');
-let totalRow = new Array(7).fill(0);
-
-groups.forEach(g => {
-  const tr = document.createElement('tr');
-  const latest = g.rev[6];
-  const status = getStatus(g.gpm, g.wow);
-
-  // YoY
-  let yoyHtml;
-  if (g.yoy !== null && g.yoy !== undefined) {
-    yoyHtml = fmtPct(g.yoy);
-  } else {
-    yoyHtml = '<span style="color:var(--text-muted);font-size:11px">신규</span>';
-  }
-
-  // WoW
-  const wowHtml = fmtPct(g.wow);
-
-  let cells = `<td>${g.name}</td>`;
-  g.rev.forEach((v,i) => {
-    totalRow[i] += v;
-    const intensity = Math.min(v / 300, 1);
-    const bg = `rgba(108,140,255,${(intensity * 0.12).toFixed(3)})`;
-    cells += `<td style="background:${bg}">${fmt(v)}</td>`;
-  });
-  cells += `<td>${wowHtml}</td>`;
-  cells += `<td>${yoyHtml}</td>`;
-  cells += `<td>${fmt(g.avg14)}</td>`;
-  cells += `<td style="font-weight:600">${fmt(g.rev25||g.rev[6])}</td>`;
-  cells += `<td>${fmtGpm(g.cm_pct)}</td>`;
-  cells += `<td>${fmtGpm(g.gpm)}</td>`;
-  cells += `<td style="text-align:right;font-size:11px">${(g.cnt25||0).toLocaleString()}</td>`;
-  cells += `<td style="text-align:center;font-size:16px">${status}</td>`;
-
-  tr.innerHTML = cells;
-  tbody.appendChild(tr);
-});
-
-// Total row
-const trTotal = document.createElement('tr');
-trTotal.className = 'total-row';
-let totalCells = '<td>합계</td>';
-totalRow.forEach(v => { totalCells += `<td>${fmt(v)}</td>`; });
-// Total WoW: W13 Sunday vs W12 Sunday
-const totalLatest = totalRow[6];
-const totalWowPrev = 930.0;
-const totalWow = ((totalLatest - totalWowPrev) / totalWowPrev * 100);
-totalCells += `<td>${fmtPct(totalWow)}</td>`;
-// Total YoY
-const totalYoy2025 = 624.2;
-const totalYoY = ((totalLatest - totalYoy2025) / totalYoy2025 * 100);
-totalCells += `<td>${fmtPct(totalYoY)}</td>`;
-const totalAvg14 = totalRow.reduce((a,b)=>a+b,0)/7;
-totalCells += `<td>${fmt(totalAvg14)}</td>`;
-totalCells += `<td style="font-weight:600">${fmt(totalLatest)}</td>`;
-// Weighted CM%
-const weightedCm = groups.reduce((s,g) => s + (g.rev25||g.rev[6])*(g.cm_pct||0), 0) / totalLatest;
-totalCells += `<td>${fmtGpm(weightedCm)}</td>`;
-// Weighted GPM
-const weightedGpm = groups.reduce((s,g) => s + (g.rev25||g.rev[6])*g.gpm, 0) / totalLatest;
-totalCells += `<td>${fmtGpm(weightedGpm)}</td>`;
-const totalCnt = groups.reduce((s,g) => s + (g.cnt25||0), 0);
-totalCells += `<td style="text-align:right;font-size:11px">${totalCnt.toLocaleString()}</td>`;
-totalCells += '<td style="text-align:center">-</td>';
-trTotal.innerHTML = totalCells;
-tbody.appendChild(trTotal);
-
-// === Chart ===
-const ctx = document.getElementById('kpiChart').getContext('2d');
+// === Section 2: Daily Revenue Chart ===
+const ctx = document.getElementById('dailyChart').getContext('2d');
 new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: dates,
-    datasets: [
-      {
-        label: '전체 매출 (백만원)',
-        data: dailyTotals.map(v => Math.round(v*10)/10),
-        borderColor: '#6c8cff',
-        backgroundColor: 'rgba(108,140,255,0.1)',
-        fill: true,
-        tension: 0.35,
-        pointRadius: 5,
-        pointHoverRadius: 7,
-        borderWidth: 2.5,
-      },
-      {
-        label: '전체 이익 (백만원)',
-        data: dailyProfit.map(v => Math.round(v*10)/10),
-        borderColor: '#a78bfa',
-        backgroundColor: 'rgba(167,139,250,0.08)',
-        fill: true,
-        tension: 0.35,
-        pointRadius: 5,
-        pointHoverRadius: 7,
-        borderWidth: 2.5,
-        borderDash: [6, 3],
-      }
-    ]
+  type:'line',
+  data:{
+    labels: dayLabels,
+    datasets:[{
+      label:'일별 매출 합계 (백만원)',
+      data: dailyTotals.map(v=>Math.round(v*10)/10),
+      borderColor:'#5b8cff',
+      backgroundColor:'rgba(91,140,255,0.08)',
+      borderWidth:2,
+      pointRadius:4,
+      pointBackgroundColor:'#5b8cff',
+      tension:0.3,
+      fill:true,
+    }]
   },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-      legend: {
-        labels: {
-          color: '#8890a4',
-          font: { family: 'Noto Sans KR', size: 12 },
-          usePointStyle: true,
-          pointStyle: 'circle',
-        }
-      },
-      tooltip: {
-        backgroundColor: '#1a1e2a',
-        titleColor: '#e4e6ed',
-        bodyColor: '#8890a4',
-        borderColor: '#252a38',
-        borderWidth: 1,
-        titleFont: { family: 'Noto Sans KR', size: 13 },
-        bodyFont: { family: 'JetBrains Mono', size: 12 },
-        callbacks: {
-          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}M`
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:'#1e2130',
+        titleColor:'#e2e4ed',
+        bodyColor:'#e2e4ed',
+        borderColor:'#2a2d42',
+        borderWidth:1,
+        callbacks:{
+          label: function(ctx){ return ctx.parsed.y.toFixed(1)+' M'; }
         }
       }
     },
-    scales: {
-      x: {
-        grid: { color: 'rgba(37,42,56,0.5)' },
-        ticks: { color: '#8890a4', font: { family: 'Noto Sans KR', size: 12 } }
+    scales:{
+      x:{
+        grid:{color:'#1e2130'},
+        ticks:{color:'#8b8fa3',font:{family:'Noto Sans KR',size:12}}
       },
-      y: {
-        grid: { color: 'rgba(37,42,56,0.5)' },
-        ticks: {
-          color: '#8890a4',
-          font: { family: 'JetBrains Mono', size: 11 },
-          callback: v => v.toFixed(0) + 'M'
-        }
+      y:{
+        grid:{color:'#1e2130'},
+        ticks:{color:'#8b8fa3',font:{family:'JetBrains Mono',size:11},callback:function(v){return v+'M';}},
+        beginAtZero:false
       }
     }
   }
+});
+
+// === Section 3: Division Daily Table ===
+const divBody = document.getElementById('divBody');
+function gpmBadge(gpm){
+  if(gpm<0) return '<span class="badge badge-red">🔴 '+gpm+'%</span>';
+  if(gpm<25) return '<span class="badge badge-yellow">🟡 '+gpm+'%</span>';
+  return '<span class="badge badge-green">🟢 '+gpm+'%</span>';
+}
+function statusText(gpm){
+  if(gpm<0) return '<span class="badge badge-red">적자</span>';
+  if(gpm<25) return '<span class="badge badge-yellow">미달</span>';
+  return '<span class="badge badge-green">달성</span>';
+}
+
+let totalSum = 0;
+divisions.forEach(function(d){
+  totalSum += d.sum;
+  var tr = document.createElement('tr');
+  var cells = '<td>'+d.name+'</td>';
+  d.daily.forEach(function(v){
+    cells += '<td>'+v.toFixed(1)+'</td>';
+  });
+  cells += '<td style="font-weight:600">'+d.sum.toFixed(1)+'</td>';
+  cells += '<td>'+gpmBadge(d.gpm)+'</td>';
+  cells += '<td>'+d.cm+'%</td>';
+  cells += '<td>'+statusText(d.gpm)+'</td>';
+  tr.innerHTML = cells;
+  divBody.appendChild(tr);
+});
+
+// Total row
+var totalTr = document.createElement('tr');
+totalTr.style.cssText = 'background:#1a1c28;font-weight:700';
+var totalCells = '<td style="font-weight:700">합계</td>';
+dailyTotals.forEach(function(v){ totalCells += '<td>'+v.toFixed(1)+'</td>'; });
+totalCells += '<td>'+totalSum.toFixed(1)+'</td><td>'+gpmBadge(avgGPM)+'</td><td>'+avgCM+'%</td><td></td>';
+totalTr.innerHTML = totalCells;
+divBody.appendChild(totalTr);
+
+// === Section 5: Bottom rank tables ===
+var perTripData = [
+  {name:'쏘팸75%', cnt:'26', rev:'14,005원', gpm:'-474%', profit:'-1.7M'},
+  {name:'패스포트심야9000', cnt:'35', rev:'16,287원', gpm:'-118%', profit:'-0.7M'},
+  {name:'퇴출근9900', cnt:'309', rev:'16,318원', gpm:'-121%', profit:'-6.1M'},
+  {name:'제주75%', cnt:'45', rev:'18,787원', gpm:'-73%', profit:'-0.6M'},
+  {name:'땡처리19900(BMW)', cnt:'20', rev:'30,119원', gpm:'-160%', profit:'-1.0M'},
+  {name:'가격제4h미만30%', cnt:'1,305', rev:'31,624원', gpm:'-19%', profit:'-7.9M'},
+  {name:'당일최저가22900', cnt:'123', rev:'35,088원', gpm:'-29%', profit:'-1.2M'},
+  {name:'당일최저가34900', cnt:'141', rev:'50,628원', gpm:'-8%', profit:'-0.6M'},
+  {name:'특별전29900(BMW)', cnt:'34', rev:'52,784원', gpm:'-143%', profit:'-2.6M'},
+  {name:'땡처리29900(아반떼)', cnt:'188', rev:'53,731원', gpm:'-36%', profit:'-3.7M'},
+];
+var perTripBody = document.getElementById('perTripBody');
+perTripData.forEach(function(d){
+  perTripBody.innerHTML += '<tr><td>'+d.name+'</td><td>'+d.cnt+'</td><td>'+d.rev+'</td><td><span class="badge badge-red">'+d.gpm+'</span></td><td class="profit-neg">'+d.profit+'</td></tr>';
+});
+
+var perHourData = [
+  {name:'쏘팸75%', cnt:'26', rev:'724원/h', dur:'19.3h', profit:'-1.7M'},
+  {name:'패스포트심야9000', cnt:'35', rev:'1,505원/h', dur:'10.8h', profit:'-0.7M'},
+  {name:'퇴출근9900', cnt:'309', rev:'1,870원/h', dur:'8.7h', profit:'-6.1M'},
+  {name:'땡처리19900(BMW)', cnt:'20', rev:'1,874원/h', dur:'16.1h', profit:'-1.0M'},
+  {name:'특별전29900(BMW)', cnt:'34', rev:'2,413원/h', dur:'21.9h', profit:'-2.6M'},
+  {name:'특별전19900(아반떼)', cnt:'94', rev:'2,833원/h', dur:'21.1h', profit:'-4.0M'},
+  {name:'땡처리29900(아반떼)', cnt:'188', rev:'3,754원/h', dur:'14.3h', profit:'-3.7M'},
+  {name:'당일최저가22900', cnt:'123', rev:'5,617원/h', dur:'6.2h', profit:'-1.2M'},
+  {name:'당일최저가34900', cnt:'141', rev:'5,571원/h', dur:'9.1h', profit:'-0.6M'},
+  {name:'제주75%', cnt:'45', rev:'5,693원/h', dur:'3.3h', profit:'-0.6M'},
+];
+var perHourBody = document.getElementById('perHourBody');
+perHourData.forEach(function(d){
+  perHourBody.innerHTML += '<tr><td>'+d.name+'</td><td>'+d.cnt+'</td><td>'+d.rev+'</td><td>'+d.dur+'</td><td class="profit-neg">'+d.profit+'</td></tr>';
 });
 </script>
 </body>
