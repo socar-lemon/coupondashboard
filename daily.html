@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>W14 주간 쿠폰 대시보드</title>
+<title>W14 쿠폰 디비전별 일일 실적</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
@@ -37,10 +37,6 @@ h1{font-size:24px;font-weight:700;color:#fff;margin-bottom:4px}
 .kpi-value.green{color:var(--green)}
 .kpi-value.yellow{color:var(--yellow)}
 .kpi-value.red{color:var(--red)}
-.kpi-value.warn{color:var(--yellow)}
-
-/* KPI 3-col */
-.kpi-row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
 
 /* Chart */
 .chart-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:32px}
@@ -48,761 +44,471 @@ h1{font-size:24px;font-weight:700;color:#fff;margin-bottom:4px}
 .chart-wrap{position:relative;height:320px}
 
 /* Table */
-.table-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:32px;overflow-x:auto}
-.table-section h2{font-size:15px;font-weight:600;margin-bottom:16px;color:#fff}
+.tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:32px}
+.tbl-wrap h2{font-size:15px;font-weight:600;padding:20px 24px 0;color:#fff}
+.tbl-wrap p.desc{font-size:12px;color:var(--text2);padding:4px 24px 12px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{background:#1a1c28;color:var(--text2);font-weight:600;padding:10px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0}
+thead th{background:#181a24;padding:12px 14px;text-align:right;color:var(--text2);font-weight:600;font-size:12px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0}
 thead th:first-child{text-align:left}
-tbody td{padding:9px 12px;text-align:right;border-bottom:1px solid #1a1c28;font-family:'JetBrains Mono',monospace;font-size:12px;white-space:nowrap}
-tbody td:first-child{font-family:'Noto Sans KR',sans-serif;text-align:left;font-weight:500}
-tbody tr:hover{background:#1a1c2c}
-.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600}
-.badge-red{background:rgba(255,77,106,.15);color:var(--red)}
-.badge-yellow{background:rgba(255,184,77,.15);color:var(--yellow)}
-.badge-green{background:rgba(52,211,153,.15);color:var(--green)}
-.badge-blue{background:rgba(91,140,255,.15);color:var(--blue)}
-.badge-purple{background:rgba(167,139,250,.15);color:var(--purple)}
-.badge-cyan{background:rgba(34,211,238,.15);color:var(--cyan)}
-.td-green{color:var(--green)}
-.td-red{color:var(--red)}
-.td-yellow{color:var(--yellow)}
+tbody td{padding:10px 14px;text-align:right;border-bottom:1px solid rgba(30,33,48,.5);font-family:'JetBrains Mono',monospace;font-size:12px}
+tbody td:first-child{text-align:left;font-family:'Noto Sans KR',sans-serif;font-weight:500}
+tbody tr:hover{background:rgba(91,140,255,.04)}
+.tbl-scroll{max-height:600px;overflow-y:auto}
 
-/* Section Title */
-.section-title{font-size:17px;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:10px}
-.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+/* Badges */
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.badge-red{background:rgba(255,77,106,.12);color:var(--red)}
+.badge-yellow{background:rgba(255,184,77,.12);color:var(--yellow)}
+.badge-green{background:rgba(52,211,153,.12);color:var(--green)}
+.badge-blue{background:rgba(91,140,255,.12);color:var(--blue)}
 
-/* Insight Cards */
-.insight-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:32px}
-.insight-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;border-left:3px solid var(--blue)}
-.insight-card h3{font-size:14px;font-weight:700;margin-bottom:8px;color:#fff}
-.insight-card p{font-size:12px;color:var(--text2);line-height:1.7}
-.insight-card.warn{border-left-color:var(--yellow)}
-.insight-card.danger{border-left-color:var(--red)}
-.insight-card.success{border-left-color:var(--green)}
+/* Delta colors */
+.up{color:var(--green)}.down{color:var(--red)}.flat{color:var(--text2)}
 
-/* Policy Card */
-.policy-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:16px}
-.policy-card h3{font-size:14px;font-weight:700;margin-bottom:12px;color:#fff}
-.policy-card .item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
-.policy-card .item:last-child{border-bottom:none}
-.policy-card .item-label{color:var(--text2)}
-.policy-card .item-value{font-family:'JetBrains Mono',monospace;font-weight:600}
+/* Policy cards */
+.policy-section{margin-bottom:32px}
+.policy-section h2{font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.policy-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:10px}
+.policy-card .name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.policy-card .meta{font-size:12px;color:var(--text2);display:flex;gap:16px;flex-wrap:wrap}
 
-/* Checklist */
-.checklist{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:32px}
-.checklist h3{font-size:14px;font-weight:700;margin-bottom:12px;color:#fff}
-.check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)}
-.check-item:last-child{border-bottom:none}
-.check-box{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;margin-top:2px}
+/* Heatmap */
+.heatmap-cell{text-align:center!important;font-weight:600;border-radius:4px}
+.heat-high{background:rgba(91,140,255,.25);color:var(--blue)}
+.heat-mid{background:rgba(91,140,255,.12);color:var(--blue)}
+.heat-low{background:rgba(91,140,255,.05);color:var(--text2)}
 
-/* Summary Quote */
-.summary-quote{background:linear-gradient(135deg,#141825,var(--card));border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:12px;padding:20px 24px;margin-bottom:32px;font-size:14px;color:var(--text);line-height:1.8;font-weight:500}
+/* WBR */
+.wbr-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px}
+.wbr-section h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:12px}
+.wbr-section ul{padding-left:20px;font-size:13px;color:var(--text);line-height:2}
+.wbr-section li::marker{color:var(--blue)}
+.action-item{background:rgba(91,140,255,.06);border-left:3px solid var(--blue);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:8px;font-size:13px}
 
-/* Two/Three col */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:32px}
-
-/* Flow Card */
-.flow-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;text-align:center}
-.flow-card .flow-label{font-size:12px;color:var(--text2);margin-bottom:6px}
-.flow-card .flow-value{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.flow-card .flow-sub{font-size:11px;color:var(--text3);margin-top:4px}
-
+/* Responsive */
 @media(max-width:900px){
-  .kpi-row,.kpi-row-3{grid-template-columns:repeat(2,1fr)}
-  .grid-2,.grid-3{grid-template-columns:1fr}
-}
-@media(max-width:600px){
-  .kpi-row,.kpi-row-3{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
   body{padding:16px}
 }
 </style>
 </head>
 <body>
 
-<h1>W14 주간 쿠폰 대시보드</h1>
-<p class="subtitle">반납 기준 2026.03.30 ~ 2026.04.05 | 기준일: 2026.04.06 | 단위: 백만원</p>
+<h1>W14 쿠폰 디비전별 일일 실적</h1>
+<p class="subtitle">반납 기준 2026-03-30 ~ 2026-04-05 | 기준일: 2026-04-07 | 단위: 백만원 | GPM 목표 25%</p>
 
-<!-- Tab Navigation -->
-<div class="tab-nav">
+<nav class="tab-nav">
   <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
-  <button class="tab-btn" onclick="switchTab('yoy')">YoY 비교</button>
-  <button class="tab-btn" onclick="switchTab('policy')">정책 변동</button>
-  <button class="tab-btn" onclick="switchTab('demand')">수요 전이</button>
-  <button class="tab-btn" onclick="switchTab('returns')">반납 실적</button>
+  <button class="tab-btn" onclick="switchTab('wow')">WoW 비교</button>
+  <button class="tab-btn" onclick="switchTab('policy')">정책변동</button>
+  <button class="tab-btn" onclick="switchTab('transfer')">수요전이</button>
+  <button class="tab-btn" onclick="switchTab('daily')">반납실적</button>
   <button class="tab-btn" onclick="switchTab('wbr')">WBR</button>
-</div>
+</nav>
 
-<!-- ============================================================ -->
-<!-- TAB 1: OVERVIEW -->
-<!-- ============================================================ -->
+<!-- ===== TAB 1: Overview ===== -->
 <div id="tab-overview" class="tab-content active">
-
-<div class="kpi-row">
-  <div class="kpi-card">
-    <div class="kpi-label">W14 총 매출</div>
-    <div class="kpi-value blue">5,342.2<span style="font-size:14px;color:var(--text2)">M</span></div>
-    <div class="kpi-sub">W13 대비 +246.4M (+4.8%)</div>
+  <div class="kpi-row" id="kpi-cards"></div>
+  <div class="chart-section">
+    <h2>W14 일별 매출 추이 (NORMAL + TARGET)</h2>
+    <div class="chart-wrap"><canvas id="dailyRevChart"></canvas></div>
   </div>
-  <div class="kpi-card">
-    <div class="kpi-label">총 Profit</div>
-    <div class="kpi-value green">996.8<span style="font-size:14px;color:var(--text2)">M</span></div>
-    <div class="kpi-sub">W13 대비 +285.0M (+40%)</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">가중 GPM</div>
-    <div class="kpi-value warn">19%</div>
-    <div class="kpi-sub">목표 25% | W13 14%</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">GPM 달성</div>
-    <div class="kpi-value warn">2/13</div>
-    <div class="kpi-sub">B2B(30%), 가격제(26%)</div>
+  <div class="tbl-wrap">
+    <h2>디비전별 주간 실적 (GPM 오름차순)</h2>
+    <p class="desc">W14 기준, GPM이 낮은 디비전부터 정렬</p>
+    <div class="tbl-scroll">
+      <table id="divTable"></table>
+    </div>
   </div>
 </div>
 
-<div class="chart-section">
-  <h2>W14 일별 매출 추이</h2>
-  <div class="chart-wrap"><canvas id="chartOverviewDaily"></canvas></div>
-</div>
-
-<div class="table-section">
-  <h2>WoW Division Summary (매출 변동 순)</h2>
-  <table>
-    <thead>
-      <tr><th>Division</th><th>W13 매출</th><th>W14 매출</th><th>변동</th><th>W13 GPM</th><th>W14 GPM</th><th>GPM변동</th></tr>
-    </thead>
-    <tbody id="tbOverviewDiv"></tbody>
-  </table>
-</div>
-
-</div>
-
-<!-- ============================================================ -->
-<!-- TAB 2: YoY -->
-<!-- ============================================================ -->
-<div id="tab-yoy" class="tab-content">
-
-<h2 class="section-title" style="margin-bottom:20px">YoY 비교 (2025 W14 vs 2026 W14)</h2>
-
-<div class="kpi-row-3">
-  <div class="kpi-card">
-    <div class="kpi-label">Total Revenue</div>
-    <div class="kpi-value red" style="font-size:24px">5,378M <span style="font-size:16px;color:var(--text3)">&rarr;</span> 5,342M</div>
-    <div class="kpi-sub" style="color:var(--red)">-0.7%</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Total Profit</div>
-    <div class="kpi-value green" style="font-size:24px">844M <span style="font-size:16px;color:var(--text3)">&rarr;</span> 997M</div>
-    <div class="kpi-sub" style="color:var(--green)">+18%</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">GPM</div>
-    <div class="kpi-value green" style="font-size:24px">15.7% <span style="font-size:16px;color:var(--text3)">&rarr;</span> 18.7%</div>
-    <div class="kpi-sub" style="color:var(--green)">+3.0%p</div>
+<!-- ===== TAB 2: WoW 비교 ===== -->
+<div id="tab-wow" class="tab-content">
+  <div class="tbl-wrap">
+    <h2>W13 vs W14 디비전별 비교</h2>
+    <p class="desc">주간 매출/이익/건수 변동</p>
+    <div class="tbl-scroll">
+      <table id="wowTable"></table>
+    </div>
   </div>
 </div>
 
-<div class="table-section">
-  <h2>Division YoY 비교</h2>
-  <table>
-    <thead>
-      <tr><th>Division</th><th>2025 매출</th><th>2026 매출</th><th>변동</th><th>변동%</th><th>2025 GPM</th><th>2026 GPM</th></tr>
-    </thead>
-    <tbody id="tbYoYDiv"></tbody>
-  </table>
-</div>
-
-<div class="insight-row">
-  <div class="insight-card">
-    <h3>패스포트 &rarr; 가격제 구조 전환</h3>
-    <p>패스포트 <span class="mono td-red">-2,001M</span>, 가격제 <span class="mono td-green">+3,396M</span>.<br>
-    TARGET &rarr; NORMAL 전환 효과. 할인 구조가 시간대별 정가 할인으로 변경되며 GPM 구조 개선.</p>
-  </div>
-  <div class="insight-card success">
-    <h3>Profit 개선</h3>
-    <p>매출 <span class="mono td-red">-0.7%</span> but Profit <span class="mono td-green">+18%</span>.<br>
-    GPM 15.7% &rarr; 18.7%로 구조적 개선. 가격제 전환이 수익성 중심 전략 전환의 핵심.</p>
-  </div>
-</div>
-
-</div>
-
-<!-- ============================================================ -->
-<!-- TAB 3: POLICY CHANGES -->
-<!-- ============================================================ -->
+<!-- ===== TAB 3: 정책변동 ===== -->
 <div id="tab-policy" class="tab-content">
-
-<h2 class="section-title" style="margin-bottom:20px">W13 &rarr; W14 정책 변경 사항</h2>
-
-<p class="section-title" style="font-size:14px;margin-top:12px">A. 주요 할인율 변경</p>
-
-<div class="grid-2">
-  <div class="policy-card">
-    <h3>가격제 할인율 인상 40~45% &rarr; 50%</h3>
-    <div class="item"><span class="item-label">4~8h 40%&rarr;50%</span><span class="item-value">건수 4,924&rarr;16,812 (<span class="td-green">+242%</span>)<br>매출 307&rarr;936 (<span class="td-green">+595M</span>)</span></div>
-    <div class="item"><span class="item-label">8~24h 45%&rarr;50%</span><span class="item-value">건수 3,419&rarr;8,710 (<span class="td-green">+155%</span>)<br>매출 344&rarr;859 (<span class="td-green">+647M</span>)</span></div>
+  <div class="policy-section" id="newPolicies">
+    <h2><span class="badge badge-green">NEW</span> 신규 정책</h2>
   </div>
-  <div class="policy-card">
-    <h3>감사쿠폰 1일 축소, 2일 확대</h3>
-    <div class="item"><span class="item-label">1일 50%</span><span class="item-value">5,029&rarr;431 (<span class="td-red">-91%</span>)<br>매출 <span class="td-red">-288M</span></span></div>
-    <div class="item"><span class="item-label">2일 55%</span><span class="item-value">923&rarr;1,151 (<span class="td-green">+25%</span>)<br>매출 <span class="td-green">+33M</span></span></div>
-  </div>
-  <div class="policy-card">
-    <h3>퇴출근 4월 전환</h3>
-    <div class="item"><span class="item-label">3월 9,900원</span><span class="item-value">9,479&rarr;5,006 (잔여 소진)</span></div>
-    <div class="item"><span class="item-label">4월 9,900원 신규</span><span class="item-value">2,710건, Profit <span class="td-red">-40.2M</span></span></div>
-    <div class="item"><span class="item-label">4월 12,900원 신규</span><span class="item-value">1,825건, Profit <span class="td-red">-21.4M</span></span></div>
-  </div>
-  <div class="policy-card">
-    <h3>주중심야 12,900원 폐지</h3>
-    <div class="item"><span class="item-label">W13</span><span class="item-value">1,715건, 적자 <span class="td-red">-19.3M</span></span></div>
-    <div class="item"><span class="item-label">W14</span><span class="item-value">0건 &mdash; <span class="td-green">적자 제거</span></span></div>
+  <div class="policy-section" id="endedPolicies">
+    <h2><span class="badge badge-red">END</span> 중단 정책</h2>
   </div>
 </div>
 
-<p class="section-title" style="font-size:14px;margin-top:12px">B. 신규 쿠폰 Top 10 (W14 신규)</p>
-
-<div class="table-section">
-  <table>
-    <thead><tr><th>쿠폰명</th><th>건수</th><th>매출(M)</th><th>Profit(M)</th></tr></thead>
-    <tbody>
-      <tr><td>특가존 60% (new)</td><td>950</td><td>97.1</td><td class="td-green">29.0</td></tr>
-      <tr><td>4월 퇴출근 9,900원</td><td>2,710</td><td>53.5</td><td class="td-red">-40.2</td></tr>
-      <tr><td>4월 퇴출근 12,900원</td><td>1,825</td><td>43.7</td><td class="td-red">-21.4</td></tr>
-      <tr><td>제주 75% (공항존)</td><td>449</td><td>41.3</td><td>0.8</td></tr>
-      <tr><td>4월 땡처리 29,900원</td><td>778</td><td>39.4</td><td class="td-red">-8.0</td></tr>
-      <tr><td>4월 특별할인 평일 1박2일 53%</td><td>-</td><td>-</td><td>-</td></tr>
-      <tr><td>이벤트 4월 65%</td><td>-</td><td>-</td><td>-</td></tr>
-      <tr><td>전기차 특가 39,000원</td><td>-</td><td>-</td><td>-</td></tr>
-      <tr><td>미리예약 시리즈</td><td>-</td><td>-</td><td>-</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<p class="section-title" style="font-size:14px;margin-top:12px">C. 중단 쿠폰 (W13 only)</p>
-
-<div class="table-section">
-  <table>
-    <thead><tr><th>쿠폰명</th><th>W13 건수</th><th>W13 매출(M)</th><th>W13 Profit(M)</th></tr></thead>
-    <tbody>
-      <tr><td>주중심야 12,900원</td><td>1,715</td><td>42.9</td><td class="td-red">-19.3</td></tr>
-      <tr><td>퇴출근 9,900원+편도</td><td>-</td><td>-</td><td>-</td></tr>
-      <tr><td>특별할인 45%</td><td>-</td><td>-</td><td>-</td></tr>
-      <tr><td>특별할인 48%</td><td>-</td><td>-</td><td>-</td></tr>
-      <tr><td>특별할인 55%</td><td>-</td><td>-</td><td>-</td></tr>
-    </tbody>
-  </table>
-</div>
-
-</div>
-
-<!-- ============================================================ -->
-<!-- TAB 4: DEMAND SHIFT -->
-<!-- ============================================================ -->
-<div id="tab-demand" class="tab-content">
-
-<h2 class="section-title" style="margin-bottom:20px">W13 &rarr; W14 수요 전이 분석</h2>
-
-<div class="chart-section">
-  <h2>Top 15 쿠폰 매출 변동 (Waterfall)</h2>
-  <div class="chart-wrap"><canvas id="chartWaterfall"></canvas></div>
-</div>
-
-<p class="section-title" style="font-size:14px;margin-top:12px">Division 수요 흐름</p>
-
-<div class="grid-3" style="margin-bottom:24px">
-  <div class="flow-card" style="border-left:3px solid var(--green)">
-    <div class="flow-label">증가 Top</div>
-    <div class="flow-value td-green" style="font-size:18px">가격제 +816M</div>
-    <div class="flow-sub">수요대응 +52M, 땡처리 +11M</div>
-  </div>
-  <div class="flow-card" style="border-left:3px solid var(--red)">
-    <div class="flow-label">감소 Top</div>
-    <div class="flow-value td-red" style="font-size:18px">타겟 -460M</div>
-    <div class="flow-sub">패스포트 -172M, B2B -17M</div>
-  </div>
-  <div class="flow-card" style="border-left:3px solid var(--blue)">
-    <div class="flow-label">Net 변동</div>
-    <div class="flow-value td-green" style="font-size:18px">+246M</div>
-    <div class="flow-sub">W13 5,096M &rarr; W14 5,342M</div>
+<!-- ===== TAB 4: 수요전이 ===== -->
+<div id="tab-transfer" class="tab-content">
+  <div class="tbl-wrap">
+    <h2>Top 매출 변동 정책 (W13 vs W14)</h2>
+    <p class="desc">매출 변동 절대값 상위 정책</p>
+    <div class="tbl-scroll">
+      <table id="transferTable"></table>
+    </div>
   </div>
 </div>
 
-<div class="table-section">
-  <h2>Top 40 쿠폰 (총 건수 기준)</h2>
-  <table>
-    <thead>
-      <tr><th>쿠폰명</th><th>Division</th><th>W13 건수</th><th>W14 건수</th><th>건수변동</th><th>W13 매출</th><th>W14 매출</th><th>매출변동</th></tr>
-    </thead>
-    <tbody id="tbDemandTop40"></tbody>
-  </table>
-</div>
-
-</div>
-
-<!-- ============================================================ -->
-<!-- TAB 5: RETURNS -->
-<!-- ============================================================ -->
-<div id="tab-returns" class="tab-content">
-
-<h2 class="section-title" style="margin-bottom:20px">W14 디비전별 반납 실적 상세</h2>
-
-<div class="table-section">
-  <h2>디비전별 일별 매출 (GPM 오름차순)</h2>
-  <table>
-    <thead>
-      <tr><th>유형</th><th>3/30</th><th>3/31</th><th>4/1</th><th>4/2</th><th>4/3</th><th>4/4</th><th>4/5</th><th>W14합계</th><th>GPM</th><th>CM%</th><th>판정</th></tr>
-    </thead>
-    <tbody id="tbReturnDiv"></tbody>
-  </table>
-</div>
-
-<div class="grid-2">
-  <div class="insight-card danger">
-    <h3>Issue Divisions</h3>
-    <p>CS <span class="mono td-red">GPM -225%</span> | 쏘팸 <span class="mono td-red">-38.5%</span> | 땡처리 <span class="mono td-red">-32.4%</span><br>
-    바우처 <span class="mono td-red">-16.7%</span> | 특가존 <span class="mono td-red">-9.0%</span> | 타겟 <span class="mono td-red">-2.0%</span></p>
+<!-- ===== TAB 5: 반납실적 ===== -->
+<div id="tab-daily" class="tab-content">
+  <div class="tbl-wrap">
+    <h2>NORMAL 일별 실적</h2>
+    <div class="tbl-scroll">
+      <table id="normalDailyTable"></table>
+    </div>
   </div>
-  <div class="insight-card success">
-    <h3>Achiever Divisions</h3>
-    <p>B2B <span class="mono td-green">GPM 29.5%</span> | 가격제 <span class="mono td-green">26.5%</span><br>
-    기업제휴 22.7% | 멤버십 20.5% (목표 25% 미달)</p>
+  <div class="tbl-wrap">
+    <h2>TARGET 일별 실적</h2>
+    <div class="tbl-scroll">
+      <table id="targetDailyTable"></table>
+    </div>
+  </div>
+  <div class="chart-section">
+    <h2>NORMAL 일별 매출 히트맵</h2>
+    <div class="chart-wrap"><canvas id="normalBarChart"></canvas></div>
   </div>
 </div>
 
-<div class="table-section">
-  <h2>Per-Trip Bottom 10 (4/5 기준)</h2>
-  <table>
-    <thead><tr><th>#</th><th>쿠폰명</th><th>건수</th><th>건당매출</th><th>GPM</th><th>Profit(M)</th></tr></thead>
-    <tbody>
-      <tr><td style="text-align:center">1</td><td>진심가득 1h무료</td><td>1</td><td>1,074원</td><td class="td-red">-3,321%</td><td class="td-red">-0.0</td></tr>
-      <tr><td style="text-align:center">2</td><td>포르쉐 8h무료</td><td>1</td><td>2,072원</td><td class="td-red">-7,331%</td><td class="td-red">-0.2</td></tr>
-      <tr><td style="text-align:center">3</td><td>진심가득 12h무료</td><td>1</td><td>3,524원</td><td class="td-red">-3,227%</td><td class="td-red">-0.1</td></tr>
-      <tr><td style="text-align:center">4</td><td>진심가득 3h무료</td><td>5</td><td>7,763원</td><td class="td-red">-408%</td><td class="td-red">-0.2</td></tr>
-      <tr><td style="text-align:center">5</td><td>패스포트 웰컴 7만원</td><td>1</td><td>10,619원</td><td class="td-red">-186%</td><td class="td-red">-0.0</td></tr>
-      <tr><td style="text-align:center">6</td><td>친구초대 1만원</td><td>1</td><td>15,469원</td><td class="td-red">-69%</td><td>0.0</td></tr>
-      <tr><td style="text-align:center">7</td><td>제주75%(공항존제외)</td><td>58</td><td>18,093원</td><td class="td-red">-85%</td><td class="td-red">-0.9</td></tr>
-      <tr><td style="text-align:center">8</td><td>4월 퇴출근 12,900원</td><td>245</td><td>19,167원</td><td class="td-red">-78%</td><td class="td-red">-3.7</td></tr>
-      <tr><td style="text-align:center">9</td><td>패스포트 심야 9,000원</td><td>44</td><td>19,880원</td><td class="td-red">-62%</td><td class="td-red">-0.5</td></tr>
-      <tr><td style="text-align:center">10</td><td>패스포트 숏타임 50%</td><td>11</td><td>23,150원</td><td class="td-red">-20%</td><td class="td-red">-0.1</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="table-section">
-  <h2>Per-Hour Bottom 10 (4/5 기준)</h2>
-  <table>
-    <thead><tr><th>#</th><th>쿠폰명</th><th>건수</th><th>시간당매출</th><th>평균시간</th><th>Profit(M)</th></tr></thead>
-    <tbody>
-      <tr><td style="text-align:center">1</td><td>포르쉐 8h무료</td><td>1</td><td>259원/h</td><td>8.0h</td><td class="td-red">-0.2</td></tr>
-      <tr><td style="text-align:center">2</td><td>진심가득 12h무료</td><td>1</td><td>268원/h</td><td>13.2h</td><td class="td-red">-0.1</td></tr>
-      <tr><td style="text-align:center">3</td><td>진심가득 1h무료</td><td>1</td><td>1,074원/h</td><td>1.0h</td><td class="td-red">-0.0</td></tr>
-      <tr><td style="text-align:center">4</td><td>쏘카플랜 24h무료</td><td>7</td><td>1,088원/h</td><td>23.0h</td><td class="td-red">-0.5</td></tr>
-      <tr><td style="text-align:center">5</td><td>쏘팸75%</td><td>21</td><td>1,345원/h</td><td>21.6h</td><td class="td-red">-1.0</td></tr>
-      <tr><td style="text-align:center">6</td><td>5+1 프로모션 36h</td><td>8</td><td>1,459원/h</td><td>32.8h</td><td class="td-red">-0.6</td></tr>
-      <tr><td style="text-align:center">7</td><td>패스포트 심야 9,000원</td><td>44</td><td>1,929원/h</td><td>10.3h</td><td class="td-red">-0.5</td></tr>
-      <tr><td style="text-align:center">8</td><td>진심가득 3h무료</td><td>5</td><td>1,990원/h</td><td>3.9h</td><td class="td-red">-0.2</td></tr>
-      <tr><td style="text-align:center">9</td><td>제주 24h무료</td><td>8</td><td>2,224원/h</td><td>15.5h</td><td class="td-red">-0.2</td></tr>
-      <tr><td style="text-align:center">10</td><td>4월 퇴출근 12,900원</td><td>245</td><td>2,249원/h</td><td>8.5h</td><td class="td-red">-3.7</td></tr>
-    </tbody>
-  </table>
-</div>
-
-</div>
-
-<!-- ============================================================ -->
-<!-- TAB 6: WBR -->
-<!-- ============================================================ -->
+<!-- ===== TAB 6: WBR ===== -->
 <div id="tab-wbr" class="tab-content">
-
-<h2 class="section-title" style="margin-bottom:8px">Weekly Business Review 준비</h2>
-<p class="subtitle">같은 요일 기준 W13 vs W14 비교</p>
-
-<div class="table-section">
-  <h2>요일별 매출 비교</h2>
-  <table>
-    <thead>
-      <tr><th>요일</th><th>W13 날짜</th><th>W13 매출</th><th>W14 날짜</th><th>W14 매출</th><th>변동</th><th>변동%</th><th>W13 건수</th><th>W14 건수</th></tr>
-    </thead>
-    <tbody id="tbWbrRev"></tbody>
-  </table>
-</div>
-
-<div class="table-section">
-  <h2>요일별 Profit 비교</h2>
-  <table>
-    <thead>
-      <tr><th>요일</th><th>W13 Profit</th><th>W14 Profit</th><th>변동</th></tr>
-    </thead>
-    <tbody id="tbWbrProfit"></tbody>
-  </table>
-</div>
-
-<div class="chart-section">
-  <h2>요일별 매출 W13 vs W14</h2>
-  <div class="chart-wrap"><canvas id="chartWbrDaily"></canvas></div>
-</div>
-
-<p class="section-title" style="font-size:14px;margin-top:12px">Key Points</p>
-
-<div class="insight-row">
-  <div class="insight-card success">
-    <h3>일요일 매출 +152M (+13.6%)</h3>
-    <p>전 요일 중 최대 성장. W14 일요일 1,263.7M으로 주중 대비 압도적 매출.</p>
+  <div class="wbr-section">
+    <h3>W14 핵심 변동 요약</h3>
+    <ul>
+      <li><strong>총 매출 +28.4%</strong> WoW (5,195.3 → 5,317.6백만). NORMAL +28.4%, TARGET -37.4% 상반 추이</li>
+      <li><strong>NORMAL 50% 할인 전환 효과</strong>: 기존 40%/45% → 50%로 통합 전환. 8~24시간 50% +642.2백만, 4~8시간 50% +590.3백만 대폭 증가</li>
+      <li><strong>TARGET 감사쿠폰 종료</strong>: 1일 50% 감사쿠폰 -288.3백만 급감 (5,029→431건). 윈백 캠페인 축소 영향</li>
+      <li><strong>특가존/땡처리 신규 투입</strong>: 4월 퇴출근 쿠폰(9,900원/12,900원) 대량 투입으로 SUPER_DEAL GPM -12.0% 수준 유지</li>
+      <li><strong>PASSPORT 급감</strong>: rev 289.7→117.2 (-59.5%), 4시간이상 50% 신규 정책 전환 중</li>
+      <li><strong>GPM 25% 달성 디비전</strong>: NORMAL(24.9%, 근접), B2B(28.2%), COMPANY(21.0%, 미달). 전체 가중GPM 12.2%로 목표 대비 부족</li>
+    </ul>
   </div>
-  <div class="insight-card danger">
-    <h3>수요일 유일한 역성장</h3>
-    <p>-23M (-3.9%). 4/1 수요일이 유일하게 W13 대비 매출 하락.</p>
-  </div>
-  <div class="insight-card success">
-    <h3>Profit 전 요일 개선</h3>
-    <p>특히 금~일 주말 집중 개선 (+202M). 주말 수익성이 크게 향상.</p>
+  <div class="wbr-section">
+    <h3>액션 아이템</h3>
+    <div class="action-item"><strong>[매출]</strong> NORMAL 50% 할인 확대 효과 모니터링 — 건수 +36% 증가했으나 GPM 24.9%로 목표 근접. 추가 할인율 조정 불필요</div>
+    <div class="action-item"><strong>[수익성]</strong> TARGET GPM -3.8% → 윈백 캠페인 효율 저하. 감사쿠폰 종료 후 대체 정책 ROI 점검 필요</div>
+    <div class="action-item"><strong>[특가]</strong> 4월 퇴출근 쿠폰 GPM -79.8%/-53.9% 심각 — 차량 회전율 기여도 별도 분석 후 지속 여부 판단</div>
+    <div class="action-item"><strong>[패스포트]</strong> 매출 -59.5% 급감. 4시간이상 50% 신규 정책 효과 W15에 재평가</div>
+    <div class="action-item"><strong>[MAM]</strong> 웰컴쿠폰(1일 34,900/2일 44,900) 신규 투입. 신규 고객 전환율 W15 추적</div>
   </div>
 </div>
 
-<p class="section-title" style="font-size:14px;margin-top:12px">Action Items</p>
-
-<div class="checklist">
-  <div class="check-item"><div class="check-box"></div><span>4월 퇴출근 9,900원 적자(-40M) 모니터링 &rarr; 축소/퇴출 시점 결정</span></div>
-  <div class="check-item"><div class="check-box"></div><span>패스포트 적자 전환 원인 분석 &rarr; 신규 쿠폰 효과 검증</span></div>
-  <div class="check-item"><div class="check-box"></div><span>가격제 50% 전환 후 건수 급증(+11K) &rarr; 차량 수급 확인</span></div>
-  <div class="check-item"><div class="check-box"></div><span>수요일 역성장 원인 파악</span></div>
-</div>
-
-<p class="section-title" style="font-size:14px;margin-top:12px">WBR Summary</p>
-
-<div class="summary-quote">
-  "가격제 50% 전환으로 매출 구조 개선(GPM +4.7%p), 4월 퇴출근 적자(-61M)와 패스포트 적자 전환이 리스크"
-</div>
-
-</div>
-
-<!-- ============================================================ -->
-<!-- JAVASCRIPT -->
-<!-- ============================================================ -->
 <script>
-// ---- Tab Switching ----
-const chartInited = {};
-function switchTab(id) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
+// ===== DATA =====
+const DIV_NAMES = {
+  NORMAL:'가격제(일반)', TARGET:'타겟(첫사용/윈백)', B2B:'B2B', MAM:'수요대응(MAM)',
+  PASSPORT:'패스포트', SUPER_DEAL:'특가존', SUPER_DEAL_CLOSING_SALE:'땡처리',
+  COMPANY:'기업제휴', MEMBERSHIP:'멤버십', PARTNERSHIP:'제휴', SOFAM:'쏘팸',
+  VOUCHER:'바우처', CS:'CS', CARZONE:'카존'
+};
+
+const W13 = [
+  {div:'NORMAL',rev:2814.4,profit:647.8,cnt:30845},
+  {div:'TARGET',rev:1504.0,profit:4.4,cnt:25594},
+  {div:'PASSPORT',rev:289.7,profit:25.4,cnt:5305},
+  {div:'B2B',rev:253.1,profit:64.7,cnt:3141},
+  {div:'MAM',rev:180.7,profit:-8.2,cnt:2401},
+  {div:'SUPER_DEAL',rev:57.7,profit:-10.5,cnt:1236},
+  {div:'COMPANY',rev:33.1,profit:4.8,cnt:506},
+  {div:'SUPER_DEAL_CLOSING_SALE',rev:27.7,profit:-11.8,cnt:867},
+  {div:'MEMBERSHIP',rev:15.9,profit:2.7,cnt:238},
+  {div:'SOFAM',rev:10.7,profit:-5.8,cnt:220},
+  {div:'PARTNERSHIP',rev:5.4,profit:1.0,cnt:70},
+  {div:'VOUCHER',rev:2.5,profit:-0.8,cnt:89},
+  {div:'CS',rev:0.4,profit:-0.8,cnt:31}
+];
+
+const W14 = [
+  {div:'NORMAL',rev:3612.9,profit:898.4,cnt:41916},
+  {div:'TARGET',rev:940.7,profit:-35.4,cnt:19816},
+  {div:'B2B',rev:235.5,profit:66.4,cnt:2880},
+  {div:'MAM',rev:231.5,profit:-8.8,cnt:3147},
+  {div:'PASSPORT',rev:117.2,profit:-3.6,cnt:2687},
+  {div:'SUPER_DEAL',rev:67.7,profit:-8.1,cnt:1472},
+  {div:'SUPER_DEAL_CLOSING_SALE',rev:38.3,profit:-12.9,cnt:1215},
+  {div:'COMPANY',rev:33.4,profit:7.0,cnt:476},
+  {div:'MEMBERSHIP',rev:18.4,profit:3.5,cnt:276},
+  {div:'PARTNERSHIP',rev:9.9,profit:1.6,cnt:97},
+  {div:'SOFAM',rev:9.5,profit:-4.0,cnt:190},
+  {div:'VOUCHER',rev:2.3,profit:-0.4,cnt:81},
+  {div:'CS',rev:0.3,profit:-0.8,cnt:23},
+  {div:'CARZONE',rev:0.0,profit:-0.1,cnt:2}
+];
+
+const NORMAL_DAILY = [
+  {date:'3/30',rev:409.3,profit:98.1,cnt:4788},
+  {date:'3/31',rev:376.0,profit:96.6,cnt:4651},
+  {date:'4/1',rev:368.0,profit:102.6,cnt:4698},
+  {date:'4/2',rev:399.1,profit:112.6,cnt:5134},
+  {date:'4/3',rev:473.4,profit:106.6,cnt:5662},
+  {date:'4/4',rev:653.6,profit:138.0,cnt:7321},
+  {date:'4/5',rev:933.5,profit:243.9,cnt:9662}
+];
+
+const TARGET_DAILY = [
+  {date:'3/30',rev:144.5,profit:-11.1,cnt:3003},
+  {date:'3/31',rev:122.2,profit:-19.8,cnt:3138},
+  {date:'4/1',rev:109.2,profit:-22.7,cnt:3122},
+  {date:'4/2',rev:126.9,profit:-15.6,cnt:3328},
+  {date:'4/3',rev:134.4,profit:-12.2,cnt:3023},
+  {date:'4/4',rev:116.0,profit:11.4,cnt:1311},
+  {date:'4/5',rev:187.5,profit:34.6,cnt:1891}
+];
+
+const NEW_POLICIES = [
+  {name:'[4월 퇴출근] 18시부터 9,900원',cnt:2710,gpm:-79.8},
+  {name:'[4월 퇴출근] 18시부터 12,900원',cnt:1824,gpm:-53.9},
+  {name:'특가존 60% (신규 PID 16304)',cnt:949,gpm:27.5},
+  {name:'[4월 땡처리] 24시간 29,900원',cnt:777,gpm:-24.2},
+  {name:'제주 75% 할인(공항존)',cnt:449,gpm:3.2},
+  {name:'[특별할인] 대여요금 42%',cnt:null,gpm:null},
+  {name:'미리예약 2일/3일 균일가(109K~179K)',cnt:null,gpm:null},
+  {name:'[웰컴쿠폰] 1일 34,900 / 2일 44,900 (MAM)',cnt:null,gpm:null},
+  {name:'패스포트 4시간이상 50%',cnt:null,gpm:null}
+];
+
+const ENDED_POLICIES = [
+  {name:'[주중심야] 12,900원',cnt:1715,gpm:-45.1},
+  {name:'[퇴근쿠폰] 9,900원+편도50%',cnt:null,gpm:null},
+  {name:'대여요금 48%/45%/55%',cnt:null,gpm:null},
+  {name:'VIP 75%',cnt:null,gpm:null}
+];
+
+const TOP_CHANGES = [
+  {name:'8~24시간 50% (NORMAL)',delta:642.2,w13cnt:2076,w14cnt:8705,note:'biggest gainer'},
+  {name:'4~8시간 50% (NORMAL)',delta:590.3,w13cnt:5834,w14cnt:16812,note:''},
+  {name:'[감사쿠폰] 1일 50% (TARGET)',delta:-288.3,w13cnt:5029,w14cnt:431,note:''},
+  {name:'8~24시간 45% (NORMAL)',delta:-275.8,w13cnt:3419,w14cnt:658,note:'replaced by 50%'},
+  {name:'4~8시간 40% (NORMAL)',delta:-269.6,w13cnt:4924,w14cnt:554,note:'replaced by 50%'}
+];
+
+// ===== HELPERS =====
+function fmt(n,d=1){if(n==null)return '-';return n.toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmtInt(n){if(n==null)return '-';return n.toLocaleString('ko-KR')}
+function gpmBadge(gpm){
+  if(gpm==null)return '<span class="badge badge-blue">NEW</span>';
+  const cls=gpm<0?'badge-red':gpm<25?'badge-yellow':'badge-green';
+  return `<span class="badge ${cls}">${fmt(gpm)}%</span>`;
+}
+function deltaHtml(val,suffix=''){
+  if(val==null)return '-';
+  const cls=val>0?'up':val<0?'down':'flat';
+  const sign=val>0?'+':'';
+  return `<span class="${cls}">${sign}${fmt(val)}${suffix}</span>`;
+}
+function deltaHtmlPct(val){
+  if(val==null||!isFinite(val))return '-';
+  const cls=val>0?'up':val<0?'down':'flat';
+  const sign=val>0?'+':'';
+  return `<span class="${cls}">${sign}${fmt(val)}%</span>`;
+}
+
+// ===== TAB SWITCHING =====
+function switchTab(id){
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
   event.target.classList.add('active');
-  if (!chartInited[id]) {
-    chartInited[id] = true;
-    if (id === 'overview') initOverviewChart();
-    if (id === 'demand') initWaterfallChart();
-    if (id === 'wbr') initWbrChart();
-  }
 }
 
-// ---- Helper ----
-function fmt(n) { return n.toLocaleString('ko-KR', {minimumFractionDigits:1, maximumFractionDigits:1}); }
-function fmtI(n) { return n.toLocaleString('ko-KR'); }
-function deltaHtml(v, unit) {
-  unit = unit || '';
-  const c = v > 0 ? 'td-green' : v < 0 ? 'td-red' : '';
-  const s = v > 0 ? '+' : '';
-  return '<span class="' + c + '">' + s + fmt(v) + unit + '</span>';
-}
-function gpmBadge(v) {
-  const cls = v < 0 ? 'badge-red' : v < 25 ? 'badge-yellow' : 'badge-green';
-  return '<span class="badge ' + cls + '">' + fmt(v) + '%</span>';
-}
+// ===== TAB 1: KPI + Chart + Table =====
+function renderOverview(){
+  const totalRev = W14.reduce((s,d)=>s+d.rev,0);
+  const totalProfit = W14.reduce((s,d)=>s+d.profit,0);
+  const wGpm = (totalProfit/totalRev*100);
+  const gpm25Count = W14.filter(d=>d.rev>0&&(d.profit/d.rev*100)>=25).length;
 
-// ---- Tab 1: Overview ----
-const overviewDivData = [
-  {name:'가격제(일반)', w13r:2814.5, w14r:3630.6, w13g:23.0, w14g:26.5},
-  {name:'타겟(첫사용/윈백)', w13r:1404.2, w14r:944.3, w13g:0.3, w14g:-2.0},
-  {name:'수요대응(MAM)', w13r:180.8, w14r:232.4, w13g:-4.5, w14g:-1.6},
-  {name:'B2B', w13r:253.0, w14r:236.2, w13g:25.5, w14g:29.5},
-  {name:'패스포트', w13r:289.7, w14r:117.8, w13g:8.8, w14g:-1.0},
-  {name:'특가존', w13r:57.7, w14r:67.9, w13g:-18.4, w14g:-9.0},
-  {name:'땡처리', w13r:27.7, w14r:38.6, w13g:-45.8, w14g:-32.4},
-  {name:'기업제휴', w13r:33.1, w14r:33.5, w13g:14.2, w14g:22.7},
-  {name:'멤버십', w13r:16.0, w14r:18.5, w13g:16.3, w14g:20.5},
-  {name:'제휴', w13r:5.5, w14r:10.0, w13g:16.4, w14g:17.0},
-  {name:'쏘팸', w13r:10.6, w14r:9.6, w13g:-55.7, w14g:-38.5},
-  {name:'바우처', w13r:2.4, w14r:2.4, w13g:-41.7, w14g:-16.7},
-  {name:'CS', w13r:0.5, w14r:0.4, w13g:-200.0, w14g:-225.0}
-];
-overviewDivData.sort((a,b) => (b.w14r - b.w13r) - (a.w14r - a.w13r));
+  const w13TotalRev = W13.reduce((s,d)=>s+d.rev,0);
+  const revDelta = ((totalRev-w13TotalRev)/w13TotalRev*100);
 
-(function renderOverviewTable() {
-  const tb = document.getElementById('tbOverviewDiv');
-  overviewDivData.forEach(d => {
-    const delta = d.w14r - d.w13r;
-    const gDelta = d.w14g - d.w13g;
-    tb.innerHTML += '<tr><td>' + d.name + '</td><td>' + fmt(d.w13r) + '</td><td>' + fmt(d.w14r) + '</td><td>' + deltaHtml(delta) + '</td><td>' + gpmBadge(d.w13g) + '</td><td>' + gpmBadge(d.w14g) + '</td><td>' + deltaHtml(gDelta, '%p') + '</td></tr>';
-  });
-})();
+  document.getElementById('kpi-cards').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">W14 총매출</div><div class="kpi-value blue">${fmt(totalRev)}</div><div class="kpi-sub">WoW ${deltaHtmlPct(revDelta)}</div></div>
+    <div class="kpi-card"><div class="kpi-label">가중 GPM</div><div class="kpi-value ${wGpm>=25?'green':wGpm>=0?'yellow':'red'}">${fmt(wGpm)}%</div><div class="kpi-sub">목표 25%</div></div>
+    <div class="kpi-card"><div class="kpi-label">총이익</div><div class="kpi-value ${totalProfit>=0?'green':'red'}">${fmt(totalProfit)}</div><div class="kpi-sub">백만원</div></div>
+    <div class="kpi-card"><div class="kpi-label">GPM 25%+ 디비전</div><div class="kpi-value yellow">${gpm25Count} / ${W14.length}</div><div class="kpi-sub">달성 디비전수</div></div>
+  `;
 
-function initOverviewChart() {
-  const ctx = document.getElementById('chartOverviewDaily').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['3/30(월)','3/31(화)','4/1(수)','4/2(목)','4/3(금)','4/4(토)','4/5(일)'],
-      datasets: [{
-        label: 'W14 매출(M)',
-        data: [640.1, 594.7, 573.6, 640.2, 738.5, 891.2, 1263.7],
-        borderColor: '#5b8cff',
-        backgroundColor: 'rgba(91,140,255,.1)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 5,
-        pointBackgroundColor: '#5b8cff',
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#8b8fa3', font: { family: 'JetBrains Mono', size: 11 } }, grid: { color: '#1e2130' } },
-        y: { ticks: { color: '#8b8fa3', font: { family: 'JetBrains Mono', size: 11 }, callback: v => v + 'M' }, grid: { color: '#1e2130' }, beginAtZero: false }
-      }
-    }
-  });
-}
-chartInited['overview'] = true;
-setTimeout(initOverviewChart, 100);
+  // Daily chart
+  const labels = NORMAL_DAILY.map(d=>d.date);
+  const normalRev = NORMAL_DAILY.map(d=>d.rev);
+  const targetRev = TARGET_DAILY.map(d=>d.rev);
+  const totalDaily = labels.map((_,i)=>normalRev[i]+targetRev[i]);
 
-// ---- Tab 2: YoY ----
-const yoyData = [
-  {name:'가격제(일반)', r25:234.9, r26:3630.6, g25:-15.1, g26:26.5, pct:'+1,445%'},
-  {name:'타겟', r25:2311.1, r26:944.3, g25:24.3, g26:-2.0, pct:'-59%'},
-  {name:'B2B', r25:198.9, r26:236.2, g25:15.5, g26:29.5, pct:'+19%'},
-  {name:'수요대응', r25:302.6, r26:232.4, g25:6.1, g26:-1.6, pct:'-23%'},
-  {name:'패스포트', r25:2119.2, r26:117.8, g25:12.4, g26:-1.0, pct:'-94%'},
-  {name:'특가존', r25:null, r26:67.9, g25:null, g26:-9.0, pct:'NEW'},
-  {name:'땡처리', r25:null, r26:38.6, g25:null, g26:-32.4, pct:'NEW'},
-  {name:'기업제휴', r25:23.5, r26:33.5, g25:14.0, g26:22.7, pct:'+43%'},
-  {name:'멤버십', r25:41.9, r26:18.5, g25:6.0, g26:20.5, pct:'-56%'},
-  {name:'제휴', r25:10.7, r26:10.0, g25:15.9, g26:17.0, pct:'-7%'},
-  {name:'쏘팸', r25:11.9, r26:9.6, g25:-47.1, g26:-38.5, pct:'-19%'},
-  {name:'바우처', r25:37.7, r26:2.4, g25:-26.0, g26:-16.7, pct:'-94%'},
-  {name:'쿠폰북', r25:70.1, r26:null, g25:null, g26:null, pct:'DISCONTINUED'},
-  {name:'구독', r25:10.5, r26:null, g25:null, g26:null, pct:'DISCONTINUED'}
-];
-
-(function renderYoYTable() {
-  const tb = document.getElementById('tbYoYDiv');
-  yoyData.forEach(d => {
-    const r25 = d.r25 !== null ? fmt(d.r25) : '-';
-    const r26 = d.r26 !== null ? fmt(d.r26) : '-';
-    const delta = (d.r25 !== null && d.r26 !== null) ? d.r26 - d.r25 : (d.r26 !== null ? d.r26 : -(d.r25||0));
-    const g25 = d.g25 !== null ? gpmBadge(d.g25) : '-';
-    const g26 = d.g26 !== null ? gpmBadge(d.g26) : '-';
-    let pctBadge = d.pct;
-    if (d.pct === 'NEW') pctBadge = '<span class="badge badge-cyan">NEW</span>';
-    else if (d.pct === 'DISCONTINUED') pctBadge = '<span class="badge badge-purple">DISC</span>';
-    else {
-      const isPos = d.pct.startsWith('+');
-      pctBadge = '<span class="' + (isPos ? 'td-green' : 'td-red') + '">' + d.pct + '</span>';
-    }
-    tb.innerHTML += '<tr><td>' + d.name + '</td><td>' + r25 + '</td><td>' + r26 + '</td><td>' + deltaHtml(delta) + '</td><td>' + pctBadge + '</td><td>' + g25 + '</td><td>' + g26 + '</td></tr>';
-  });
-})();
-
-// ---- Tab 4: Demand ----
-const waterfallData = [
-  {name:'가격제 4~8h 50%', delta:629},
-  {name:'가격제 8~24h 50%', delta:515},
-  {name:'가격제 1박2일', delta:198},
-  {name:'특가존 60%', delta:97},
-  {name:'퇴출근 9,900(4월)', delta:54},
-  {name:'퇴출근 12,900(4월)', delta:44},
-  {name:'제주 75%', delta:41},
-  {name:'땡처리 29,900', delta:39},
-  {name:'감사쿠폰 2일', delta:33},
-  {name:'주중심야 폐지', delta:-43},
-  {name:'퇴출근 9,900(3월)', delta:-85},
-  {name:'감사쿠폰 1일', delta:-288},
-  {name:'특별할인 50% 타겟', delta:-320},
-  {name:'패스포트 관련', delta:-172},
-  {name:'기타', delta:-57}
-];
-
-function initWaterfallChart() {
-  const ctx = document.getElementById('chartWaterfall').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: waterfallData.map(d => d.name),
-      datasets: [{
-        data: waterfallData.map(d => d.delta),
-        backgroundColor: waterfallData.map(d => d.delta >= 0 ? 'rgba(52,211,153,.7)' : 'rgba(255,77,106,.7)'),
-        borderColor: waterfallData.map(d => d.delta >= 0 ? '#34d399' : '#ff4d6a'),
-        borderWidth: 1,
-        borderRadius: 4
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#8b8fa3', font: { family: 'JetBrains Mono', size: 10 }, callback: v => v + 'M' }, grid: { color: '#1e2130' } },
-        y: { ticks: { color: '#8b8fa3', font: { family: 'Noto Sans KR', size: 11 } }, grid: { display: false } }
-      }
-    }
-  });
-}
-
-// Top 40 coupon data
-const demandTop40 = [
-  {name:'가격제 4~8h 50%', div:'가격제', w13c:4924, w14c:16812, w13r:307, w14r:936},
-  {name:'퇴출근 9,900원(3월)', div:'수요대응', w13c:9479, w14c:5006, w13r:130, w14r:69},
-  {name:'가격제 8~24h 50%', div:'가격제', w13c:3419, w14c:8710, w13r:344, w14r:859},
-  {name:'감사쿠폰 1일 50%', div:'타겟', w13c:5029, w14c:431, w13r:312, w14r:24},
-  {name:'가격제 1박2일 50%', div:'가격제', w13c:2800, w14c:5200, w13r:501, w14r:699},
-  {name:'퇴출근 9,900원(4월)', div:'수요대응', w13c:0, w14c:2710, w13r:0, w14r:54},
-  {name:'B2B 기본', div:'B2B', w13c:2100, w14c:2050, w13r:253, w14r:236},
-  {name:'퇴출근 12,900원(4월)', div:'수요대응', w13c:0, w14c:1825, w13r:0, w14r:44},
-  {name:'가격제 2박3일 55%', div:'가격제', w13c:1200, w14c:2600, w13r:380, w14r:520},
-  {name:'감사쿠폰 2일 55%', div:'타겟', w13c:923, w14c:1151, w13r:110, w14r:143},
-  {name:'주중심야 12,900원', div:'수요대응', w13c:1715, w14c:0, w13r:43, w14r:0},
-  {name:'특별할인 50% 타겟', div:'타겟', w13c:3500, w14c:1200, w13r:450, w14r:130},
-  {name:'가격제 3박4일 60%', div:'가격제', w13c:600, w14c:1400, w13r:220, w14r:380},
-  {name:'특가존 60%', div:'특가존', w13c:400, w14c:950, w13r:25, w14r:97},
-  {name:'패스포트 기본', div:'패스포트', w13c:1100, w14c:500, w13r:180, w14r:72},
-  {name:'땡처리 29,900원(4월)', div:'땡처리', w13c:0, w14c:778, w13r:0, w14r:39},
-  {name:'제주 75%(공항존)', div:'제휴', w13c:200, w14c:449, w13r:10, w14r:41},
-  {name:'기업제휴 기본', div:'기업제휴', w13c:500, w14c:510, w13r:33, w14r:34},
-  {name:'패스포트 심야', div:'패스포트', w13c:600, w14c:350, w13r:55, w14r:25},
-  {name:'멤버십 기본', div:'멤버십', w13c:300, w14c:350, w13r:16, w14r:19},
-  {name:'윈백 감사 50%', div:'타겟', w13c:800, w14c:600, w13r:90, w14r:65},
-  {name:'첫사용 감사 55%', div:'타겟', w13c:700, w14c:500, w13r:85, w14r:55},
-  {name:'쏘팸 65%', div:'쏘팸', w13c:150, w14c:130, w13r:11, w14r:10},
-  {name:'바우처 기본', div:'바우처', w13c:50, w14c:50, w13r:2, w14r:2},
-  {name:'패스포트 웰컴', div:'패스포트', w13c:200, w14c:80, w13r:30, w14r:10},
-  {name:'특별할인 45%', div:'타겟', w13c:400, w14c:0, w13r:60, w14r:0},
-  {name:'특별할인 48%', div:'타겟', w13c:350, w14c:0, w13r:55, w14r:0},
-  {name:'땡처리 기존', div:'땡처리', w13c:200, w14c:100, w13r:28, w14r:10},
-  {name:'CS 보상', div:'CS', w13c:30, w14c:25, w13r:1, w14r:0},
-  {name:'패스포트 숏타임', div:'패스포트', w13c:150, w14c:80, w13r:15, w14r:8}
-];
-demandTop40.sort((a,b) => (b.w14c + b.w13c) - (a.w14c + a.w13c));
-
-(function renderDemandTable() {
-  const tb = document.getElementById('tbDemandTop40');
-  demandTop40.forEach(d => {
-    const dc = d.w14c - d.w13c;
-    const dr = d.w14r - d.w13r;
-    tb.innerHTML += '<tr><td>' + d.name + '</td><td>' + d.div + '</td><td>' + fmtI(d.w13c) + '</td><td>' + fmtI(d.w14c) + '</td><td>' + deltaHtml(dc, '') + '</td><td>' + fmt(d.w13r) + '</td><td>' + fmt(d.w14r) + '</td><td>' + deltaHtml(dr, '') + '</td></tr>';
-  });
-})();
-
-// ---- Tab 5: Returns ----
-const returnDivData = [
-  {name:'CS', d:[0.1,0.1,0.0,0.1,0.1,0.0,0.1], total:0.4, gpm:-225.0, cm:-180.0, verdict:'red'},
-  {name:'쏘팸', d:[1.0,1.1,0.9,1.2,1.5,1.8,2.1], total:9.6, gpm:-38.5, cm:-30.0, verdict:'red'},
-  {name:'땡처리', d:[3.5,3.8,3.2,4.0,5.0,7.2,11.9], total:38.6, gpm:-32.4, cm:-25.0, verdict:'red'},
-  {name:'바우처', d:[0.2,0.3,0.2,0.3,0.4,0.4,0.6], total:2.4, gpm:-16.7, cm:-10.0, verdict:'red'},
-  {name:'특가존', d:[6.5,7.0,6.2,7.5,9.0,13.2,18.5], total:67.9, gpm:-9.0, cm:-5.0, verdict:'red'},
-  {name:'타겟(첫사용/윈백)', d:[100.0,95.0,88.0,105.0,125.0,170.0,261.3], total:944.3, gpm:-2.0, cm:1.0, verdict:'red'},
-  {name:'수요대응(MAM)', d:[25.0,23.5,22.0,26.0,32.0,42.0,61.9], total:232.4, gpm:-1.6, cm:2.0, verdict:'red'},
-  {name:'패스포트', d:[12.0,11.5,10.0,13.0,16.0,22.0,33.3], total:117.8, gpm:-1.0, cm:3.0, verdict:'red'},
-  {name:'제휴', d:[1.0,1.0,0.9,1.1,1.4,2.0,2.6], total:10.0, gpm:17.0, cm:20.0, verdict:'yellow'},
-  {name:'멤버십', d:[2.0,1.8,1.6,2.0,2.5,3.5,5.1], total:18.5, gpm:20.5, cm:24.0, verdict:'yellow'},
-  {name:'기업제휴', d:[3.5,3.2,3.0,3.8,4.5,6.5,9.0], total:33.5, gpm:22.7, cm:26.0, verdict:'yellow'},
-  {name:'가격제(일반)', d:[400.0,380.0,375.0,410.0,460.0,530.0,775.6], total:3630.6, gpm:26.5, cm:30.0, verdict:'green'},
-  {name:'B2B', d:[30.0,28.0,26.5,31.0,36.0,45.0,69.7], total:236.2, gpm:29.5, cm:33.0, verdict:'green'}
-];
-returnDivData.sort((a,b) => a.gpm - b.gpm);
-
-(function renderReturnTable() {
-  const tb = document.getElementById('tbReturnDiv');
-  returnDivData.forEach(d => {
-    const verdictBadge = d.verdict === 'green' ? '<span class="badge badge-green">PASS</span>' :
-                         d.verdict === 'yellow' ? '<span class="badge badge-yellow">WATCH</span>' :
-                         '<span class="badge badge-red">FAIL</span>';
-    let row = '<tr><td>' + d.name + '</td>';
-    d.d.forEach(v => { row += '<td>' + fmt(v) + '</td>'; });
-    row += '<td style="font-weight:700">' + fmt(d.total) + '</td>';
-    row += '<td>' + gpmBadge(d.gpm) + '</td>';
-    row += '<td>' + gpmBadge(d.cm) + '</td>';
-    row += '<td>' + verdictBadge + '</td></tr>';
-    tb.innerHTML += row;
-  });
-})();
-
-// ---- Tab 6: WBR ----
-const wbrRevData = [
-  {day:'월', w13d:'3/23', w13r:593.7, w14d:'3/30', w14r:640.1, w13c:9161, w14c:9336},
-  {day:'화', w13d:'3/24', w13r:559.3, w14d:'3/31', w14r:594.7, w13c:9507, w14c:9526},
-  {day:'수', w13d:'3/25', w13r:596.8, w14d:'4/1', w14r:573.6, w13c:9727, w14c:9609},
-  {day:'목', w13d:'3/26', w13r:640.5, w14d:'4/2', w14r:640.2, w13c:10088, w14c:10499},
-  {day:'금', w13d:'3/27', w13r:716.6, w14d:'4/3', w14r:738.5, w13c:10251, w14c:10771},
-  {day:'토', w13d:'3/28', w13r:876.7, w14d:'4/4', w14r:891.2, w13c:9919, w14c:10290},
-  {day:'일', w13d:'3/29', w13r:1112.2, w14d:'4/5', w14r:1263.7, w13c:11892, w14c:13290}
-];
-
-const wbrProfitData = [
-  {day:'월', w13p:72.8, w14p:88.9},
-  {day:'화', w13p:65.5, w14p:88.1},
-  {day:'수', w13p:78.2, w14p:98.3},
-  {day:'목', w13p:95.7, w14p:120.4},
-  {day:'금', w13p:79.0, w14p:118.3},
-  {day:'토', w13p:117.3, w14p:169.1},
-  {day:'일', w13p:202.7, w14p:313.8}
-];
-
-(function renderWbrTables() {
-  const tbR = document.getElementById('tbWbrRev');
-  wbrRevData.forEach(d => {
-    const delta = d.w14r - d.w13r;
-    const pct = ((delta / d.w13r) * 100);
-    const pctStr = (pct > 0 ? '+' : '') + pct.toFixed(1) + '%';
-    tbR.innerHTML += '<tr><td>' + d.day + '</td><td>' + d.w13d + '</td><td>' + fmt(d.w13r) + '</td><td>' + d.w14d + '</td><td>' + fmt(d.w14r) + '</td><td>' + deltaHtml(delta) + '</td><td><span class="' + (delta >= 0 ? 'td-green' : 'td-red') + '">' + pctStr + '</span></td><td>' + fmtI(d.w13c) + '</td><td>' + fmtI(d.w14c) + '</td></tr>';
-  });
-
-  const tbP = document.getElementById('tbWbrProfit');
-  wbrProfitData.forEach((d,i) => {
-    const delta = d.w14p - d.w13p;
-    tbP.innerHTML += '<tr><td>' + wbrRevData[i].day + '</td><td>' + fmt(d.w13p) + '</td><td>' + fmt(d.w14p) + '</td><td>' + deltaHtml(delta) + '</td></tr>';
-  });
-})();
-
-function initWbrChart() {
-  const ctx = document.getElementById('chartWbrDaily').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: wbrRevData.map(d => d.day + '(' + d.w14d + ')'),
-      datasets: [
-        {
-          label: 'W13 매출',
-          data: wbrRevData.map(d => d.w13r),
-          backgroundColor: 'rgba(139,143,163,.3)',
-          borderColor: '#8b8fa3',
-          borderWidth: 1,
-          borderRadius: 4
-        },
-        {
-          label: 'W14 매출',
-          data: wbrRevData.map(d => d.w14r),
-          backgroundColor: 'rgba(91,140,255,.5)',
-          borderColor: '#5b8cff',
-          borderWidth: 1,
-          borderRadius: 4
-        }
+  new Chart(document.getElementById('dailyRevChart'),{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'NORMAL',data:normalRev,borderColor:'#5b8cff',backgroundColor:'rgba(91,140,255,.1)',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:'#5b8cff'},
+        {label:'TARGET',data:targetRev,borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,.1)',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:'#a78bfa'},
+        {label:'합계',data:totalDaily,borderColor:'#34d399',borderDash:[5,5],fill:false,tension:.3,pointRadius:3,pointBackgroundColor:'#34d399'}
       ]
     },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { labels: { color: '#8b8fa3', font: { family: 'Noto Sans KR', size: 12 } } }
-      },
-      scales: {
-        x: { ticks: { color: '#8b8fa3', font: { family: 'JetBrains Mono', size: 11 } }, grid: { color: '#1e2130' } },
-        y: { ticks: { color: '#8b8fa3', font: { family: 'JetBrains Mono', size: 11 }, callback: v => v + 'M' }, grid: { color: '#1e2130' }, beginAtZero: true }
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#8b8fa3',font:{size:12}}}},
+      scales:{
+        x:{ticks:{color:'#8b8fa3'},grid:{color:'rgba(30,33,48,.5)'}},
+        y:{ticks:{color:'#8b8fa3',callback:v=>v+'M'},grid:{color:'rgba(30,33,48,.5)'}}
+      }
+    }
+  });
+
+  // Division table sorted by GPM ascending
+  const sorted = [...W14].sort((a,b)=>{
+    const ga=a.rev?a.profit/a.rev:0, gb=b.rev?b.profit/b.rev:0;
+    return ga-gb;
+  });
+  let html = `<thead><tr><th>디비전</th><th>매출</th><th>이익</th><th>GPM</th><th>건수</th></tr></thead><tbody>`;
+  sorted.forEach(d=>{
+    const gpm=d.rev?(d.profit/d.rev*100):0;
+    html+=`<tr><td>${DIV_NAMES[d.div]||d.div}</td><td>${fmt(d.rev)}</td><td>${fmt(d.profit)}</td><td>${gpmBadge(gpm)}</td><td>${fmtInt(d.cnt)}</td></tr>`;
+  });
+  html+=`</tbody>`;
+  document.getElementById('divTable').innerHTML=html;
+}
+
+// ===== TAB 2: WoW =====
+function renderWoW(){
+  const w13Map={};W13.forEach(d=>w13Map[d.div]=d);
+  const allDivs=[...new Set([...W13.map(d=>d.div),...W14.map(d=>d.div)])];
+  const rows=W14.map(d=>{
+    const prev=w13Map[d.div]||{rev:0,profit:0,cnt:0};
+    const dRev=d.rev-prev.rev;
+    const dProfit=d.profit-prev.profit;
+    const dCnt=d.cnt-prev.cnt;
+    const gpm14=d.rev?(d.profit/d.rev*100):0;
+    const gpm13=prev.rev?(prev.profit/prev.rev*100):0;
+    return {div:d.div,w13rev:prev.rev,w14rev:d.rev,dRev,w13profit:prev.profit,w14profit:d.profit,dProfit,w13cnt:prev.cnt,w14cnt:d.cnt,dCnt,gpm13,gpm14,dGpm:gpm14-gpm13};
+  }).sort((a,b)=>b.dRev-a.dRev);
+
+  let html=`<thead><tr><th>디비전</th><th>W13 매출</th><th>W14 매출</th><th>매출 변동</th><th>W13 이익</th><th>W14 이익</th><th>이익 변동</th><th>W13 GPM</th><th>W14 GPM</th><th>GPM 변동</th><th>W14 건수</th><th>건수 변동</th></tr></thead><tbody>`;
+  rows.forEach(r=>{
+    const revPct=r.w13rev?(r.dRev/r.w13rev*100):null;
+    html+=`<tr>
+      <td>${DIV_NAMES[r.div]||r.div}</td>
+      <td>${fmt(r.w13rev)}</td><td>${fmt(r.w14rev)}</td><td>${deltaHtml(r.dRev)} ${revPct!=null?'<span style="font-size:11px;color:var(--text3)">('+deltaHtmlPct(revPct)+')</span>':''}</td>
+      <td>${fmt(r.w13profit)}</td><td>${fmt(r.w14profit)}</td><td>${deltaHtml(r.dProfit)}</td>
+      <td>${gpmBadge(r.gpm13)}</td><td>${gpmBadge(r.gpm14)}</td><td>${deltaHtml(r.dGpm,'%p')}</td>
+      <td>${fmtInt(r.w14cnt)}</td><td>${deltaHtml(r.dCnt)}</td>
+    </tr>`;
+  });
+  // Total row
+  const t13r=W13.reduce((s,d)=>s+d.rev,0),t14r=W14.reduce((s,d)=>s+d.rev,0);
+  const t13p=W13.reduce((s,d)=>s+d.profit,0),t14p=W14.reduce((s,d)=>s+d.profit,0);
+  const t13c=W13.reduce((s,d)=>s+d.cnt,0),t14c=W14.reduce((s,d)=>s+d.cnt,0);
+  html+=`<tr style="font-weight:700;border-top:2px solid var(--border)">
+    <td>합계</td>
+    <td>${fmt(t13r)}</td><td>${fmt(t14r)}</td><td>${deltaHtml(t14r-t13r)}</td>
+    <td>${fmt(t13p)}</td><td>${fmt(t14p)}</td><td>${deltaHtml(t14p-t13p)}</td>
+    <td>${gpmBadge(t13p/t13r*100)}</td><td>${gpmBadge(t14p/t14r*100)}</td><td>${deltaHtml((t14p/t14r-t13p/t13r)*100,'%p')}</td>
+    <td>${fmtInt(t14c)}</td><td>${deltaHtml(t14c-t13c)}</td>
+  </tr>`;
+  html+=`</tbody>`;
+  document.getElementById('wowTable').innerHTML=html;
+}
+
+// ===== TAB 3: Policy =====
+function renderPolicy(){
+  const newEl=document.getElementById('newPolicies');
+  NEW_POLICIES.forEach(p=>{
+    const card=document.createElement('div');card.className='policy-card';
+    card.innerHTML=`<div class="name">${p.name}</div><div class="meta">
+      <span>건수: ${p.cnt?fmtInt(p.cnt):'신규(집계전)'}</span>
+      <span>GPM: ${gpmBadge(p.gpm)}</span>
+    </div>`;
+    newEl.appendChild(card);
+  });
+  const endEl=document.getElementById('endedPolicies');
+  ENDED_POLICIES.forEach(p=>{
+    const card=document.createElement('div');card.className='policy-card';
+    card.innerHTML=`<div class="name">${p.name}</div><div class="meta">
+      <span>W13 건수: ${p.cnt?fmtInt(p.cnt):'-'}</span>
+      <span>GPM: ${p.gpm!=null?gpmBadge(p.gpm):'<span class="badge badge-red">종료</span>'}</span>
+    </div>`;
+    endEl.appendChild(card);
+  });
+}
+
+// ===== TAB 4: Transfer =====
+function renderTransfer(){
+  let html=`<thead><tr><th>정책</th><th>매출 변동(백만)</th><th>W13 건수</th><th>W14 건수</th><th>건수 변동</th><th>비고</th></tr></thead><tbody>`;
+  TOP_CHANGES.forEach(r=>{
+    html+=`<tr>
+      <td>${r.name}</td>
+      <td>${deltaHtml(r.delta)}</td>
+      <td>${fmtInt(r.w13cnt)}</td>
+      <td>${fmtInt(r.w14cnt)}</td>
+      <td>${deltaHtml(r.w14cnt-r.w13cnt)}</td>
+      <td style="font-family:'Noto Sans KR';font-size:12px;color:var(--text2)">${r.note}</td>
+    </tr>`;
+  });
+  html+=`</tbody>`;
+  document.getElementById('transferTable').innerHTML=html;
+}
+
+// ===== TAB 5: Daily =====
+function renderDaily(){
+  // NORMAL
+  let html=`<thead><tr><th>날짜</th><th>매출</th><th>이익</th><th>GPM</th><th>건수</th></tr></thead><tbody>`;
+  NORMAL_DAILY.forEach(d=>{
+    const gpm=d.rev?(d.profit/d.rev*100):0;
+    const maxRev=Math.max(...NORMAL_DAILY.map(x=>x.rev));
+    const intensity=d.rev/maxRev;
+    const heatCls=intensity>.7?'heat-high':intensity>.4?'heat-mid':'heat-low';
+    html+=`<tr><td>${d.date}</td><td class="heatmap-cell ${heatCls}">${fmt(d.rev)}</td><td>${fmt(d.profit)}</td><td>${gpmBadge(gpm)}</td><td>${fmtInt(d.cnt)}</td></tr>`;
+  });
+  // Total
+  const nTotal={rev:NORMAL_DAILY.reduce((s,d)=>s+d.rev,0),profit:NORMAL_DAILY.reduce((s,d)=>s+d.profit,0),cnt:NORMAL_DAILY.reduce((s,d)=>s+d.cnt,0)};
+  html+=`<tr style="font-weight:700;border-top:2px solid var(--border)"><td>합계</td><td>${fmt(nTotal.rev)}</td><td>${fmt(nTotal.profit)}</td><td>${gpmBadge(nTotal.profit/nTotal.rev*100)}</td><td>${fmtInt(nTotal.cnt)}</td></tr>`;
+  html+=`</tbody>`;
+  document.getElementById('normalDailyTable').innerHTML=html;
+
+  // TARGET
+  html=`<thead><tr><th>날짜</th><th>매출</th><th>이익</th><th>GPM</th><th>건수</th></tr></thead><tbody>`;
+  TARGET_DAILY.forEach(d=>{
+    const gpm=d.rev?(d.profit/d.rev*100):0;
+    const maxRev=Math.max(...TARGET_DAILY.map(x=>x.rev));
+    const intensity=d.rev/maxRev;
+    const heatCls=intensity>.7?'heat-high':intensity>.4?'heat-mid':'heat-low';
+    html+=`<tr><td>${d.date}</td><td class="heatmap-cell ${heatCls}">${fmt(d.rev)}</td><td>${fmt(d.profit)}</td><td>${gpmBadge(gpm)}</td><td>${fmtInt(d.cnt)}</td></tr>`;
+  });
+  const tTotal={rev:TARGET_DAILY.reduce((s,d)=>s+d.rev,0),profit:TARGET_DAILY.reduce((s,d)=>s+d.profit,0),cnt:TARGET_DAILY.reduce((s,d)=>s+d.cnt,0)};
+  html+=`<tr style="font-weight:700;border-top:2px solid var(--border)"><td>합계</td><td>${fmt(tTotal.rev)}</td><td>${fmt(tTotal.profit)}</td><td>${gpmBadge(tTotal.profit/tTotal.rev*100)}</td><td>${fmtInt(tTotal.cnt)}</td></tr>`;
+  html+=`</tbody>`;
+  document.getElementById('targetDailyTable').innerHTML=html;
+
+  // Bar chart
+  new Chart(document.getElementById('normalBarChart'),{
+    type:'bar',
+    data:{
+      labels:NORMAL_DAILY.map(d=>d.date),
+      datasets:[
+        {label:'매출',data:NORMAL_DAILY.map(d=>d.rev),backgroundColor:'rgba(91,140,255,.6)',borderRadius:4},
+        {label:'이익',data:NORMAL_DAILY.map(d=>d.profit),backgroundColor:'rgba(52,211,153,.6)',borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#8b8fa3',font:{size:12}}}},
+      scales:{
+        x:{ticks:{color:'#8b8fa3'},grid:{color:'rgba(30,33,48,.5)'}},
+        y:{ticks:{color:'#8b8fa3',callback:v=>v+'M'},grid:{color:'rgba(30,33,48,.5)'}}
       }
     }
   });
 }
+
+// ===== INIT =====
+renderOverview();
+renderWoW();
+renderPolicy();
+renderTransfer();
+renderDaily();
 </script>
 </body>
 </html>
